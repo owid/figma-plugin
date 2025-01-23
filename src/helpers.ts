@@ -1,3 +1,5 @@
+import { getUserName } from "./utils";
+
 // TODO: tighten up types
 const CHART_NAMES: Record<string, string> = {
   LineChart: "Line chart",
@@ -45,13 +47,8 @@ export function makePageNameForChart(config: any) {
   return `${chartTitle} (${userName})`;
 }
 
-function getUserName() {
-  const userName = figma.currentUser?.name;
-  return userName === "Anonymous" ? undefined : userName;
-}
-
 export async function createNewPageFromTemplatePage(
-  templatePage: any,
+  templatePage: any, // TODO: Typescript
   options: {
     pageName: string;
   },
@@ -75,24 +72,4 @@ export async function createNewPageFromTemplatePage(
   }
 
   return newPage;
-}
-
-// TODO: are there more?
-// TODO: make sure we don't change them in Grapher
-const GRAPHER_SECTIONS = ["header", "chart-area", "footer"];
-
-export function findNonGrapherNodes(node: SceneNode) {
-  // @ts-ignore TODO: typescript
-  if (!node.children) return [];
-
-  const grapherSectionSet = new Set(GRAPHER_SECTIONS);
-
-  const customNodes = [];
-  // @ts-ignore TODO: typescript
-  for (const childNote of node.children) {
-    if (!grapherSectionSet.has(childNote.name))
-      customNodes.push(childNote.clone());
-  }
-
-  return customNodes;
 }
