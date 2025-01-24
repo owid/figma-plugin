@@ -14,7 +14,9 @@ import {
 import { Input, QueryParams } from "../types";
 import { strToQueryParams } from "../utils";
 
-export async function createNewDataInsightPage(arg: Input) {
+export async function createNewDataInsightPage(arg: Input): Promise<{
+  success: boolean;
+}> {
   // Fetch the SVG and chart config by chart view name or url
   let svg: string, config: Record<string, any>;
   try {
@@ -26,7 +28,7 @@ export async function createNewDataInsightPage(arg: Input) {
     if (error instanceof Error) {
       showUI(PLUGIN_DIMENSIONS, { initialErrorMessageBackend: error.message });
     }
-    return;
+    return { success: false };
   }
 
   let queryParams: QueryParams | undefined;
@@ -54,4 +56,6 @@ export async function createNewDataInsightPage(arg: Input) {
   // Set the new page as the current page and scroll the chart into view
   await figma.setCurrentPageAsync(page);
   figma.viewport.scrollAndZoomIntoView([chartNode]);
+
+  return { success: true };
 }

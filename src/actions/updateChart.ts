@@ -15,7 +15,7 @@ import {
   isFrameNode,
 } from "../utils";
 
-export async function updateChart(arg: Input) {
+export async function updateChart(arg: Input): Promise<{ success: boolean }> {
   // Fetch the SVG from the URL and create a Figma node
   let svg: string;
   try {
@@ -26,7 +26,7 @@ export async function updateChart(arg: Input) {
         initialErrorMessageBackend: error.message,
       });
     }
-    return;
+    return { success: false };
   }
 
   const newSvgNode = figma.createNodeFromSvg(svg);
@@ -72,4 +72,6 @@ export async function updateChart(arg: Input) {
       }
     }
   }
+
+  return { success: true };
 }
