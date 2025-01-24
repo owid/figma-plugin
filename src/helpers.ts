@@ -1,6 +1,12 @@
-import { CHART_NAMES, CHART_VIEWS } from "./constants";
-import { Input } from "./types";
-import { getUserName } from "./utils";
+import Url from "url-parse";
+
+import {
+  CHART_TYPE_TO_TEMPLATE_PAGE,
+  CHART_VIEWS,
+  OWID_URL,
+} from "./constants";
+import { ChartType, Input, QueryParams } from "./types";
+import { getCurrentDate, getUserName } from "./utils";
 
 export async function fetchGrapherSvg(input: Input) {
   switch (input.type) {
@@ -16,56 +22,85 @@ export async function fetchGrapherConfig(input: Input) {
     case "url":
       return await fetchGrapherConfigByUrl(input.url);
     case "chartViewName":
-      return await fetchGrapherSvgByChartViewName(input.chartViewName);
+      return await fetchGrapherConfigByChartViewName(input.chartViewName);
   }
 }
 
-export async function fetchGrapherSvgByUrl(url: string) {
-  // TODO: make more robust
-  const [baseUrl, queryParams] = url.split("?");
-  let svgUrl = `${baseUrl}.svg?imType=square`;
-  if (queryParams) svgUrl += `&${queryParams}`;
-  const svgResponse = await fetch(svgUrl);
-  return await svgResponse.text();
+async function fetchGrapherSvgByUrl(urlStr: string) {
+  const url = new Url(urlStr);
+
+  // Construct the SVG URL
+  let svgUrl = `${url.origin}${url.pathname}.svg`;
+  if (url.query) svgUrl += `${url.query}&imType=square`;
+  else svgUrl += "?imType=square";
+
+  // Fetch SVG
+  const response = await fetch(svgUrl);
+  return await response.text();
 }
 
-export async function fetchGrapherConfigByUrl(url: string) {
-  // TODO: make more robust
-  const [baseUrl] = url.split("?");
-  let svgUrl = `${baseUrl}.config.json`;
-  const svgResponse = await fetch(svgUrl);
-  return await svgResponse.json();
+async function fetchGrapherConfigByUrl(urlStr: string) {
+  const url = new Url(urlStr);
+
+  // Construct the config URL
+  let configUrl = `${url.origin}${url.pathname}.config.json`;
+
+  // Fetch config
+  const response = await fetch(configUrl);
+  return await response.json();
 }
 
-export async function fetchGrapherSvgByChartViewName(chartViewName: string) {
-  // TODO: make more robust
+async function fetchGrapherSvgByChartViewName(chartViewName: string) {
+  // Get the chart config ID
   const chartConfigId = CHART_VIEWS[chartViewName];
-  const url = `https://ourworldindata.org/grapher/by-uuid/${chartConfigId}.svg?imType=square`;
-  const svgResponse = await fetch(url);
-  return await svgResponse.text();
+  if (!chartConfigId)
+    throw new Error(`Narrative chart does not exist: ${chartViewName}`);
+
+  // Construct the SVG URL
+  const svgUrl = `${OWID_URL}/grapher/by-uuid/${chartConfigId}.svg?imType=square`;
+
+  // Fetch SVG
+  const response = await fetch(svgUrl);
+  return await response.text();
 }
 
-export async function fetchGrapherConfigByChartViewName(chartViewName: string) {
-  // TODO: make more robust
+async function fetchGrapherConfigByChartViewName(chartViewName: string) {
+  // Get the chart config ID
   const chartConfigId = CHART_VIEWS[chartViewName];
-  const url = `https://ourworldindata.org/grapher/by-uuid/${chartConfigId}.config.json`;
-  const svgResponse = await fetch(url);
-  return await svgResponse.json();
+  if (!chartConfigId)
+    throw new Error(`Narrative chart does not exist: ${chartViewName}`);
+
+  // Construct the config URL
+  const configUrl = `${OWID_URL}/grapher/by-uuid/${chartConfigId}.config.json`;
+
+  // Fetch config
+  const reponse = await fetch(configUrl);
+  return await reponse.json();
 }
 
 /** Infer the chart type from the chart config and the query params */
-export function inferChartType(config: any): string {
-  // TODO: typescript
-  // TODO: take query params into account
-  // TODO: make work for maps and edge cases
-  return config.chartTypes && config.chartTypes.length > 0
-    ? config.chartTypes[0]
-    : "LineChart";
+export function inferChartType(
+  config: Record<string, any>,
+  queryParams?: QueryParams,
+): ChartType | undefined {
+  // If the query params specify a tab, use that
+  const tab = queryParams?.["tab"];
+  if (tab === "map") return "WorldMap";
+  if (tab === "line") return "LineChart";
+  if (tab === "slope") return "SlopeChart";
+  // Else, use the chart type from the config
+  if (config.hasMapTab && config.tab === "map") return "WorldMap";
+  if (!config.chartTypes) return "LineChart";
+  return config.chartTypes[0];
 }
 
-export function extractTemplatePageForChartType(chartType: string) {
-  // TODO: typescript
-  const templatePageName = "[Template] " + CHART_NAMES[chartType];
+function makeTemplatePageName(chartType: ChartType) {
+  return `[Template] ${CHART_TYPE_TO_TEMPLATE_PAGE[chartType]}`;
+}
+
+export function extractTemplatePageForChartType(chartType: ChartType) {
+  // Construct the name of the template page
+  const templatePageName = makeTemplatePageName(chartType);
 
   // Find the template page in the Figma document
   const templatePage = figma.root.findChild(
@@ -75,28 +110,32 @@ export function extractTemplatePageForChartType(chartType: string) {
   return templatePage;
 }
 
-export function makePageNameForChart(config: any) {
-  // TODO: typescript
-  // TODO: handle edge cases (no user name, no title)
+export function makePageNameForChart(config: Record<string, any>) {
+  const date = getCurrentDate();
   const userName = getUserName();
-  const chartTitle = config.title;
-  return `${chartTitle} (${userName})`;
+  const chartTitle = config.title || "Untitled chart";
+  let pageName = `${date} ${chartTitle}`;
+  if (userName) pageName += ` (${userName})`;
+  return pageName;
+}
+
+export async function createNewPage(pageName?: string) {
+  const newPage = figma.createPage();
+  if (pageName) newPage.name = pageName;
+  return newPage;
 }
 
 export async function createNewPageFromTemplatePage(
-  templatePage: any, // TODO: Typescript
+  templatePage: PageNode,
   options: {
     pageName: string;
   },
 ) {
-  // TODO: Typescript
-
   // Load the template page
   await templatePage.loadAsync();
 
   // Create a new page
-  const newPage = figma.createPage();
-  if (options.pageName) newPage.name = options.pageName;
+  const newPage = await createNewPage(options.pageName);
 
   // Copy all nodes from the template page to the new page
   for (const node of templatePage.children) {

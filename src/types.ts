@@ -1,5 +1,9 @@
 import { EventHandler } from "@create-figma-plugin/utilities";
 
+export interface QueryParams {
+  [key: string]: string | undefined;
+}
+
 export type Input =
   | { type: "url"; url: string }
   | { type: "chartViewName"; chartViewName: string };
@@ -22,3 +26,21 @@ export interface CloseHandler extends EventHandler {
   name: "CLOSE";
   handler: () => void;
 }
+
+export type ChartType =
+  | "LineChart"
+  | "SlopeChart"
+  | "DiscreteBar"
+  | "StackedDiscreteBar"
+  | "StackedBar"
+  | "StackedArea"
+  | "ScatterPlot"
+  | "Marimekko"
+  | "WorldMap";
+
+export type TemplatePageName =
+  | "Line chart"
+  | "Bar chart"
+  | "Stacked chart"
+  | "Scatter plot"
+  | "World map";

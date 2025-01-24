@@ -1,3 +1,5 @@
+import { ChartType, TemplatePageName } from "./types";
+
 // TODO: make sure these are in sync with Grapher
 export const GRAPHER_CHART_AREA = "chart-area";
 export const GRAPHER_HEADER = "header";
@@ -8,12 +10,20 @@ export const PLUGIN_DIMENSIONS = {
   width: 420,
 };
 
-// TODO: tighten up types
-export const CHART_NAMES: Record<string, string> = {
-  LineChart: "Line chart",
-  DiscreteBar: "Discrete bar chart",
-  // TODO: add all chart types
-};
+export const OWID_URL = "https://ourworldindata.org";
+
+export const CHART_TYPE_TO_TEMPLATE_PAGE: Record<ChartType, TemplatePageName> =
+  {
+    LineChart: "Line chart",
+    SlopeChart: "Line chart",
+    DiscreteBar: "Bar chart",
+    StackedDiscreteBar: "Bar chart",
+    Marimekko: "Bar chart",
+    StackedBar: "Stacked chart",
+    StackedArea: "Stacked chart",
+    ScatterPlot: "Scatter plot",
+    WorldMap: "World map",
+  };
 
 // TODO: remove
 export const CHART_VIEWS = {

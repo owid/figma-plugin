@@ -1,7 +1,9 @@
+import Url from "url-parse";
 import { showUI } from "@create-figma-plugin/utilities";
 
 import { PLUGIN_DIMENSIONS } from "../constants";
 import {
+  createNewPage,
   createNewPageFromTemplatePage,
   extractTemplatePageForChartType,
   fetchGrapherConfig,
@@ -9,7 +11,8 @@ import {
   inferChartType,
   makePageNameForChart,
 } from "../helpers";
-import { Input } from "../types";
+import { Input, QueryParams } from "../types";
+import { strToQueryParams } from "../utils";
 
 export async function createNewDataInsightPage(arg: Input) {
   // Fetch the SVG and chart config by chart view name or url
@@ -26,22 +29,29 @@ export async function createNewDataInsightPage(arg: Input) {
     return;
   }
 
+  let queryParams: QueryParams | undefined;
+  if (arg.type === "url") {
+    const argUrl = new Url(arg.url);
+    queryParams = strToQueryParams(argUrl.query);
+  }
+
   // Pick the template page based on the chart type
-  const chartType = inferChartType(config);
-  const templatePage = extractTemplatePageForChartType(chartType);
+  const chartType = inferChartType(config, queryParams);
+  const templatePage = chartType
+    ? extractTemplatePageForChartType(chartType)
+    : undefined;
 
-  // TODO: handle case where template page is not found
-  if (!templatePage) return;
-
-  // Create a new page from the template
-  const page = await createNewPageFromTemplatePage(templatePage, {
-    pageName: makePageNameForChart(config),
-  });
+  // Create a new page from the template if it exists
+  const pageName = makePageNameForChart(config);
+  const page = templatePage
+    ? await createNewPageFromTemplatePage(templatePage, { pageName })
+    : await createNewPage(pageName);
 
   // Add the downloaded SVG to the new page
-  page.appendChild(figma.createNodeFromSvg(svg));
+  const chartNode = figma.createNodeFromSvg(svg);
+  page.appendChild(chartNode);
 
-  // Set the new page as the current page and scroll content into view
+  // Set the new page as the current page and scroll the chart into view
   await figma.setCurrentPageAsync(page);
-  figma.viewport.scrollAndZoomIntoView(page.children);
+  figma.viewport.scrollAndZoomIntoView([chartNode]);
 }
