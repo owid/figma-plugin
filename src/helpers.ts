@@ -1,20 +1,56 @@
+import { CHART_NAMES, CHART_VIEWS } from "./constants";
+import { Input } from "./types";
 import { getUserName } from "./utils";
 
-// TODO: tighten up types
-const CHART_NAMES: Record<string, string> = {
-  LineChart: "Line chart",
-  DiscreteBar: "Discrete bar chart",
-  // TODO: add all chart types
-};
+export async function fetchGrapherSvg(input: Input) {
+  switch (input.type) {
+    case "url":
+      return await fetchGrapherSvgByUrl(input.url);
+    case "chartViewName":
+      return await fetchGrapherSvgByChartViewName(input.chartViewName);
+  }
+}
 
-export async function fetchGrapherSvg(url: string) {
-  // Fetch the SVG from the URL
-  // TODO: make more robust, add error handling
+export async function fetchGrapherConfig(input: Input) {
+  switch (input.type) {
+    case "url":
+      return await fetchGrapherConfigByUrl(input.url);
+    case "chartViewName":
+      return await fetchGrapherSvgByChartViewName(input.chartViewName);
+  }
+}
+
+export async function fetchGrapherSvgByUrl(url: string) {
+  // TODO: make more robust
   const [baseUrl, queryParams] = url.split("?");
-  let svgUrl = `${baseUrl}.svg?imType=social-media-square`;
+  let svgUrl = `${baseUrl}.svg?imType=square`;
   if (queryParams) svgUrl += `&${queryParams}`;
   const svgResponse = await fetch(svgUrl);
   return await svgResponse.text();
+}
+
+export async function fetchGrapherConfigByUrl(url: string) {
+  // TODO: make more robust
+  const [baseUrl] = url.split("?");
+  let svgUrl = `${baseUrl}.config.json`;
+  const svgResponse = await fetch(svgUrl);
+  return await svgResponse.json();
+}
+
+export async function fetchGrapherSvgByChartViewName(chartViewName: string) {
+  // TODO: make more robust
+  const chartConfigId = CHART_VIEWS[chartViewName];
+  const url = `https://ourworldindata.org/grapher/by-uuid/${chartConfigId}.svg?imType=square`;
+  const svgResponse = await fetch(url);
+  return await svgResponse.text();
+}
+
+export async function fetchGrapherConfigByChartViewName(chartViewName: string) {
+  // TODO: make more robust
+  const chartConfigId = CHART_VIEWS[chartViewName];
+  const url = `https://ourworldindata.org/grapher/by-uuid/${chartConfigId}.config.json`;
+  const svgResponse = await fetch(url);
+  return await svgResponse.json();
 }
 
 /** Infer the chart type from the chart config and the query params */

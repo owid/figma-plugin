@@ -1,22 +1,30 @@
+import { showUI } from "@create-figma-plugin/utilities";
+
+import { PLUGIN_DIMENSIONS } from "../constants";
 import {
   createNewPageFromTemplatePage,
   extractTemplatePageForChartType,
+  fetchGrapherConfig,
   fetchGrapherSvg,
   inferChartType,
   makePageNameForChart,
 } from "../helpers";
+import { Input } from "../types";
 
-export async function createNewDataInsightPage(url: string) {
-  const [baseUrl] = url.split("?");
-
-  // Fetch the SVG from the URL
-  const svg = await fetchGrapherSvg(url);
-
-  // Fetch the config
-  // TODO: make more robust, add error handling
-  const configUrl = `${baseUrl}.config.json`;
-  const configResponse = await fetch(configUrl);
-  const config = await configResponse.json();
+export async function createNewDataInsightPage(arg: Input) {
+  // Fetch the SVG and chart config by chart view name or url
+  let svg: string, config: Record<string, any>;
+  try {
+    [svg, config] = await Promise.all([
+      fetchGrapherSvg(arg),
+      fetchGrapherConfig(arg),
+    ]);
+  } catch (error) {
+    if (error instanceof Error) {
+      showUI(PLUGIN_DIMENSIONS, { initialErrorMessageBackend: error.message });
+    }
+    return;
+  }
 
   // Pick the template page based on the chart type
   const chartType = inferChartType(config);

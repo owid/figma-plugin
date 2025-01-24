@@ -1,4 +1,13 @@
+import { showUI } from "@create-figma-plugin/utilities";
+
+import {
+  GRAPHER_CHART_AREA,
+  GRAPHER_FOOTER,
+  GRAPHER_HEADER,
+  PLUGIN_DIMENSIONS,
+} from "../constants";
 import { fetchGrapherSvg } from "../helpers";
+import { Input } from "../types";
 import {
   findAndReplaceChildNodes,
   findChildNodeByName,
@@ -6,14 +15,20 @@ import {
   isFrameNode,
 } from "../utils";
 
-// TODO: make sure these are in sync with Grapher
-const GRAPHER_CHART_AREA = "chart-area";
-const GRAPHER_HEADER = "header";
-const GRAPHER_FOOTER = "footer";
-
-export async function updateChart(url: string) {
+export async function updateChart(arg: Input) {
   // Fetch the SVG from the URL and create a Figma node
-  const svg = await fetchGrapherSvg(url);
+  let svg: string;
+  try {
+    svg = await fetchGrapherSvg(arg);
+  } catch (error) {
+    if (error instanceof Error) {
+      showUI(PLUGIN_DIMENSIONS, {
+        initialErrorMessageBackend: error.message,
+      });
+    }
+    return;
+  }
+
   const newSvgNode = figma.createNodeFromSvg(svg);
 
   for (const selectedNode of figma.currentPage.selection) {
