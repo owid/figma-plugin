@@ -29,7 +29,7 @@
     "editorType": [
       "figma"
     ],
-    "id": "owid-plugin",
+    "id": "1464569592381434907",
     "name": "Our World in Data",
     "main": "src/main.ts",
     "ui": "src/ui.tsx",
