@@ -6,15 +6,15 @@ import {
   GRAPHER_HEADER,
   PLUGIN_DIMENSIONS,
 } from "../constants";
-import { fetchGrapherSvg } from "../helpers";
-import { UpdateChartArg } from "../types";
 import {
+  fetchGrapherSvg,
   findAndReplaceChildNodes,
   findChildNodeByName,
   isFrameOrGroupNode,
   moveTargetNodeBelowClosestAbove,
   replaceChildNodes,
-} from "../utils";
+} from "../helpers";
+import { UpdateChartArg } from "../types";
 
 export async function updateChart(
   arg: UpdateChartArg,

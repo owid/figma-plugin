@@ -12,7 +12,7 @@ import {
   makePageNameForChart,
 } from "../helpers";
 import { CreateNewPageArg, QueryParams } from "../types";
-import { strToQueryParams } from "../utils";
+import { strToQueryParams } from "../helpers";
 
 export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
   success: boolean;
