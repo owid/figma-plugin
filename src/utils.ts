@@ -56,10 +56,21 @@ export function findAndReplaceChildNodes(
   return true;
 }
 
-export function findLastChildAboveY(node: ChildrenMixin, y: number) {
+function findLastChildAboveY(node: ChildrenMixin, y: number) {
   return node.children
     .filter((child) => child.y < y)
     .sort((a, b) => b.y - a.y)[0];
+}
+
+export function moveTargetNodeBelowClosestAbove(
+  rootNode: ChildrenMixin,
+  targetNode: FrameNode | GroupNode,
+  margin = 12,
+) {
+  const childAbove = findLastChildAboveY(rootNode, targetNode.y);
+  if (childAbove) {
+    targetNode.y = childAbove.y + childAbove.height + margin;
+  }
 }
 
 export function getCurrentDate() {

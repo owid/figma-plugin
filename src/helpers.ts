@@ -5,10 +5,17 @@ import {
   CHART_VIEWS,
   OWID_URL,
 } from "./constants";
-import { ChartType, Input, QueryParams } from "./types";
+import {
+  ChartType,
+  CreateNewPageArg,
+  QueryParams,
+  UpdateChartArg,
+} from "./types";
 import { getCurrentDate, getUserName } from "./utils";
 
-export async function fetchGrapherSvg(input: Input) {
+export async function fetchGrapherSvg(
+  input: UpdateChartArg | CreateNewPageArg,
+) {
   switch (input.type) {
     case "url":
       return await fetchGrapherSvgByUrl(input.url);
@@ -17,7 +24,9 @@ export async function fetchGrapherSvg(input: Input) {
   }
 }
 
-export async function fetchGrapherConfig(input: Input) {
+export async function fetchGrapherConfig(
+  input: UpdateChartArg | CreateNewPageArg,
+) {
   switch (input.type) {
     case "url":
       return await fetchGrapherConfigByUrl(input.url);

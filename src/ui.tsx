@@ -5,6 +5,7 @@ import {
   Banner,
   Button,
   Container,
+  Disclosure,
   IconInfo32,
   Inline,
   Muted,
@@ -13,6 +14,7 @@ import {
   Textbox,
   TextboxAutocomplete,
   TextboxAutocompleteOption,
+  Toggle,
   VerticalSpace,
 } from "@create-figma-plugin/ui";
 import { emit } from "@create-figma-plugin/utilities";
@@ -21,6 +23,7 @@ import { CHART_VIEWS } from "./constants";
 import {
   CloseHandler,
   CreateNewDataInsightPageHandler,
+  GrapherSection,
   UpdateChartHandler,
 } from "./types";
 
@@ -31,6 +34,10 @@ function Plugin({
 }) {
   const [grapherUrl, setGrapherUrl] = useState("");
   const [chartViewName, setChartViewName] = useState("");
+
+  const [isAdvancedSectionOpen, setIsAdvancedSectionOpen] = useState(false);
+  const [shouldUpdateChartAreaOnly, setShouldUpdateChartAreaOnly] =
+    useState(false);
 
   const [errorMessageBackend, setErrorMessageBackend] = useState(
     initialErrorMessageBackend,
@@ -74,22 +81,27 @@ function Plugin({
   }, [chartViewName, grapherUrl]);
 
   const onUpdateChart = useCallback(() => {
+    const sections: GrapherSection[] | undefined = shouldUpdateChartAreaOnly
+      ? ["chart-area"]
+      : undefined;
     if (chartViewName) {
       emit<UpdateChartHandler>("UPDATE_CHART", {
         type: "chartViewName",
         chartViewName,
+        sections,
       });
     } else if (grapherUrl) {
       emit<UpdateChartHandler>("UPDATE_CHART", {
         type: "url",
         url: grapherUrl,
+        sections,
       });
     } else {
       setErrorMessageFrontend(
         "Please enter a chart view name or a Grapher URL",
       );
     }
-  }, [chartViewName, grapherUrl]);
+  }, [chartViewName, grapherUrl, shouldUpdateChartAreaOnly]);
 
   const onClose = useCallback(function () {
     emit<CloseHandler>("CLOSE");
@@ -134,6 +146,20 @@ function Plugin({
       </Inline>
       <VerticalSpace space="small" />
       {errorMessage && <Banner icon={<IconInfo32 />}>{errorMessage}</Banner>}
+      <Disclosure
+        onClick={() => setIsAdvancedSectionOpen(!isAdvancedSectionOpen)}
+        open={isAdvancedSectionOpen}
+        title="Advanced"
+      >
+        <Toggle
+          onChange={(event) =>
+            setShouldUpdateChartAreaOnly(event.currentTarget.checked)
+          }
+          value={shouldUpdateChartAreaOnly}
+        >
+          <Text>Only update the chart area</Text>
+        </Toggle>
+      </Disclosure>
     </Container>
   );
 }

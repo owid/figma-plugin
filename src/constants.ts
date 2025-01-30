@@ -1,12 +1,12 @@
-import { ChartType, TemplatePageName } from "./types";
+import { ChartType, GrapherSection, TemplatePageName } from "./types";
 
 // TODO: make sure these are in sync with Grapher
-export const GRAPHER_CHART_AREA = "chart-area";
-export const GRAPHER_HEADER = "header";
-export const GRAPHER_FOOTER = "footer";
+export const GRAPHER_CHART_AREA = "chart-area" satisfies GrapherSection;
+export const GRAPHER_HEADER = "header" satisfies GrapherSection;
+export const GRAPHER_FOOTER = "footer" satisfies GrapherSection;
 
 export const PLUGIN_DIMENSIONS = {
-  height: 320,
+  height: 380,
   width: 420,
 };
 

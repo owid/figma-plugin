@@ -3,7 +3,8 @@ import { on, once, showUI } from "@create-figma-plugin/utilities";
 import {
   CloseHandler,
   CreateNewDataInsightPageHandler,
-  Input,
+  CreateNewPageArg,
+  UpdateChartArg,
   UpdateChartHandler,
 } from "./types";
 
@@ -14,13 +15,13 @@ import { PLUGIN_DIMENSIONS } from "./constants";
 export default function () {
   on<CreateNewDataInsightPageHandler>(
     "CREATE_NEW_DATA_INSIGHT_PAGE",
-    async (arg: Input) => {
+    async (arg: CreateNewPageArg) => {
       const { success } = await createNewDataInsightPage(arg);
       if (success) figma.closePlugin();
     },
   );
 
-  on<UpdateChartHandler>("UPDATE_CHART", async (arg: Input) => {
+  on<UpdateChartHandler>("UPDATE_CHART", async (arg: UpdateChartArg) => {
     const { success } = await updateChart(arg);
     if (success) figma.closePlugin();
   });

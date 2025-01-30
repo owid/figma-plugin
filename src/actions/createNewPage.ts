@@ -11,10 +11,10 @@ import {
   inferChartType,
   makePageNameForChart,
 } from "../helpers";
-import { Input, QueryParams } from "../types";
+import { CreateNewPageArg, QueryParams } from "../types";
 import { strToQueryParams } from "../utils";
 
-export async function createNewDataInsightPage(arg: Input): Promise<{
+export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
   success: boolean;
 }> {
   // Fetch the SVG and chart config by chart view name or url
