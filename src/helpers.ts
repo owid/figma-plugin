@@ -119,9 +119,20 @@ export function makePageNameForChart(config: Record<string, any>) {
   return pageName;
 }
 
+function findPageIndexByNamePrefix(pageNamePrefix: string) {
+  return figma.root.children.findIndex((page) =>
+    page.name.startsWith(pageNamePrefix),
+  );
+}
+
 export async function createNewPage(pageName?: string) {
   const newPage = figma.createPage();
   if (pageName) newPage.name = pageName;
+
+  // Insert the page after the first divider
+  const separatorPageIndex = findPageIndexByNamePrefix("---");
+  figma.root.insertChild(separatorPageIndex + 1, newPage);
+
   return newPage;
 }
 
