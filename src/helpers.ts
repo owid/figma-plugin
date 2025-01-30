@@ -103,7 +103,7 @@ export function inferChartType(
 }
 
 function makeTemplatePageName(chartType: ChartType) {
-  return `[Template] ${CHART_TYPE_TO_TEMPLATE_PAGE[chartType]}`;
+  return `[Plugin template] ${CHART_TYPE_TO_TEMPLATE_PAGE[chartType]}`;
 }
 
 export function extractTemplatePageForChartType(chartType: ChartType) {
