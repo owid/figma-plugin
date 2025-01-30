@@ -12,7 +12,7 @@ import {
   findAndReplaceChildNodes,
   findChildNodeByName,
   findLastChildAboveY,
-  isFrameNode,
+  isFrameOrGroupNode,
 } from "../utils";
 
 export async function updateChart(arg: Input): Promise<{ success: boolean }> {
@@ -32,7 +32,7 @@ export async function updateChart(arg: Input): Promise<{ success: boolean }> {
   const newSvgNode = figma.createNodeFromSvg(svg);
 
   for (const selectedNode of figma.currentPage.selection) {
-    if (!isFrameNode(selectedNode)) continue;
+    if (!isFrameOrGroupNode(selectedNode)) continue;
 
     // Try to find 'header' and 'footer' elements in the selected node.
     // If found, replace their children with contents of the new SVG
@@ -72,6 +72,8 @@ export async function updateChart(arg: Input): Promise<{ success: boolean }> {
       }
     }
   }
+
+  newSvgNode.remove();
 
   return { success: true };
 }

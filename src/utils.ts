@@ -15,18 +15,30 @@ export function findChildNodeByName(node: ChildrenMixin, name: string) {
   return node.children.find((child) => child.name === name);
 }
 
-export function isFrameNode(node: BaseNode): node is FrameNode {
-  return node.type === "FRAME";
+export function isFrameOrGroupNode(
+  node: BaseNode,
+): node is FrameNode | GroupNode {
+  return node.type === "FRAME" || node.type === "GROUP";
 }
 
 export function replaceChildNodes(
   targetNode: ChildrenMixin,
   newNode: ChildrenMixin,
 ) {
-  // Remove old children from the target node
-  targetNode.children.forEach((child) => child.remove());
+  // Group nodes disappear from the document when all their children are removed.
+  // That's why we mark the children as stale first and only remove after appending
+  // the new children.
+
+  // Mark the target node's children as stale
+  targetNode.children.forEach((child) => child.setPluginData("stale", "true"));
+
   // Append new children to the target node
   newNode.children.forEach((child) => targetNode.appendChild(child));
+
+  // Remove stale children
+  targetNode.children
+    .filter((child) => child.getPluginData("stale") === "true")
+    .forEach((child) => child.remove());
 }
 
 export function findAndReplaceChildNodes(
@@ -35,10 +47,10 @@ export function findAndReplaceChildNodes(
   targetChildName: string,
 ) {
   const targetChildNode = findChildNodeByName(targetNode, targetChildName);
-  if (!targetChildNode || !isFrameNode(targetChildNode)) return false;
+  if (!targetChildNode || !isFrameOrGroupNode(targetChildNode)) return false;
 
   const newChildNode = findChildNodeByName(newNode, targetChildName);
-  if (!newChildNode || !isFrameNode(newChildNode)) return false;
+  if (!newChildNode || !isFrameOrGroupNode(newChildNode)) return false;
 
   replaceChildNodes(targetChildNode, newChildNode);
   return true;

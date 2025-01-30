@@ -49,12 +49,9 @@ export async function createNewDataInsightPage(arg: Input): Promise<{
     ? await createNewPageFromTemplatePage(templatePage, { pageName })
     : await createNewPage(pageName);
 
-  // Add the downloaded SVG to the new page
-  const chartNode = figma.createNodeFromSvg(svg);
-  page.appendChild(chartNode);
-
-  // Set the new page as the current page and scroll the chart into view
+  // Set the new page as the current page, add the SVG and scroll it into view
   await figma.setCurrentPageAsync(page);
+  const chartNode = figma.createNodeFromSvg(svg);
   figma.viewport.scrollAndZoomIntoView([chartNode]);
 
   return { success: true };
