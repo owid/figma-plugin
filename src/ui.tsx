@@ -1,5 +1,5 @@
 import { h, JSX } from "preact";
-import { useCallback, useState } from "preact/hooks";
+import { useCallback, useEffect, useState } from "preact/hooks";
 
 import {
   Banner,
@@ -19,19 +19,21 @@ import {
 } from "@create-figma-plugin/ui";
 import { emit } from "@create-figma-plugin/utilities";
 
-import { CHART_VIEWS } from "./constants";
 import {
+  ChartViewMap,
   CloseHandler,
   CreateNewDataInsightPageHandler,
   GrapherSection,
   UpdateChartHandler,
 } from "./types";
+import { fetchChartViewMap } from "./helpers";
 
 function Plugin({
   initialErrorMessageBackend,
 }: {
   initialErrorMessageBackend: string;
 }) {
+  const [chartViewMap, setChartViewMap] = useState<ChartViewMap>({});
   const [grapherUrl, setGrapherUrl] = useState("");
   const [chartViewName, setChartViewName] = useState("");
 
@@ -47,7 +49,7 @@ function Plugin({
   const errorMessage = errorMessageBackend || errorMessageFrontend;
 
   const availableChartViewNames: Array<TextboxAutocompleteOption> = Object.keys(
-    CHART_VIEWS,
+    chartViewMap,
   ).map((chartViewName) => ({ value: chartViewName }));
 
   function onChartViewNameUpdate(event: JSX.TargetedEvent<HTMLInputElement>) {
@@ -67,6 +69,7 @@ function Plugin({
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
         type: "chartViewName",
         chartViewName,
+        chartViewMap,
       });
     } else if (grapherUrl) {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
@@ -78,7 +81,7 @@ function Plugin({
         "Please enter a chart view name or a Grapher URL",
       );
     }
-  }, [chartViewName, grapherUrl]);
+  }, [chartViewName, chartViewMap, grapherUrl]);
 
   const onUpdateChart = useCallback(() => {
     const sections: GrapherSection[] | undefined = shouldUpdateChartAreaOnly
@@ -88,6 +91,7 @@ function Plugin({
       emit<UpdateChartHandler>("UPDATE_CHART", {
         type: "chartViewName",
         chartViewName,
+        chartViewMap,
         sections,
       });
     } else if (grapherUrl) {
@@ -101,10 +105,18 @@ function Plugin({
         "Please enter a chart view name or a Grapher URL",
       );
     }
-  }, [chartViewName, grapherUrl, shouldUpdateChartAreaOnly]);
+  }, [chartViewName, chartViewMap, grapherUrl, shouldUpdateChartAreaOnly]);
 
   const onClose = useCallback(function () {
     emit<CloseHandler>("CLOSE");
+  }, []);
+
+  useEffect(() => {
+    const getChartViewMap = async () => {
+      return await fetchChartViewMap();
+    };
+
+    getChartViewMap().then((chartViewMap) => setChartViewMap(chartViewMap));
   }, []);
 
   return (

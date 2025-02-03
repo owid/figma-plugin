@@ -6,13 +6,18 @@ export interface QueryParams {
 
 export type CreateNewPageArg =
   | { type: "url"; url: string }
-  | { type: "chartViewName"; chartViewName: string };
+  | {
+      type: "chartViewName";
+      chartViewName: string;
+      chartViewMap: ChartViewMap;
+    };
 
 export type UpdateChartArg =
   | { type: "url"; url: string; sections?: GrapherSection[] }
   | {
       type: "chartViewName";
       chartViewName: string;
+      chartViewMap: ChartViewMap;
       sections?: GrapherSection[];
     };
 
@@ -54,3 +59,5 @@ export type TemplatePageName =
   | "Stacked chart"
   | "Scatter plot"
   | "World map";
+
+export type ChartViewMap = Record<string, string>;

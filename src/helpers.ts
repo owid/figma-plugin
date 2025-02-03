@@ -1,12 +1,9 @@
 import Url from "url-parse";
 
-import {
-  CHART_TYPE_TO_TEMPLATE_PAGE,
-  CHART_VIEWS,
-  OWID_URL,
-} from "./constants";
+import { ADMIN_URL, CHART_TYPE_TO_TEMPLATE_PAGE, OWID_URL } from "./constants";
 import {
   ChartType,
+  ChartViewMap,
   CreateNewPageArg,
   QueryParams,
   UpdateChartArg,
@@ -19,7 +16,10 @@ export async function fetchGrapherSvg(
     case "url":
       return await fetchGrapherSvgByUrl(input.url);
     case "chartViewName":
-      return await fetchGrapherSvgByChartViewName(input.chartViewName);
+      return await fetchGrapherSvgByChartViewName(
+        input.chartViewName,
+        input.chartViewMap,
+      );
   }
 }
 
@@ -30,7 +30,10 @@ export async function fetchGrapherConfig(
     case "url":
       return await fetchGrapherConfigByUrl(input.url);
     case "chartViewName":
-      return await fetchGrapherConfigByChartViewName(input.chartViewName);
+      return await fetchGrapherConfigByChartViewName(
+        input.chartViewName,
+        input.chartViewMap,
+      );
   }
 }
 
@@ -58,9 +61,18 @@ async function fetchGrapherConfigByUrl(urlStr: string) {
   return await response.json();
 }
 
-async function fetchGrapherSvgByChartViewName(chartViewName: string) {
+export async function fetchChartViewMap() {
+  const url = `${ADMIN_URL}/api/chartViewMap`;
+  const response = await fetch(url);
+  return await response.json();
+}
+
+async function fetchGrapherSvgByChartViewName(
+  chartViewName: string,
+  chartViewMap: ChartViewMap,
+) {
   // Get the chart config ID
-  const chartConfigId = CHART_VIEWS[chartViewName];
+  const chartConfigId = chartViewMap[chartViewName];
   if (!chartConfigId)
     throw new Error(`Narrative chart does not exist: ${chartViewName}`);
 
@@ -72,9 +84,12 @@ async function fetchGrapherSvgByChartViewName(chartViewName: string) {
   return await response.text();
 }
 
-async function fetchGrapherConfigByChartViewName(chartViewName: string) {
+async function fetchGrapherConfigByChartViewName(
+  chartViewName: string,
+  chartViewMap: ChartViewMap,
+) {
   // Get the chart config ID
-  const chartConfigId = CHART_VIEWS[chartViewName];
+  const chartConfigId = chartViewMap[chartViewName];
   if (!chartConfigId)
     throw new Error(`Narrative chart does not exist: ${chartViewName}`);
 

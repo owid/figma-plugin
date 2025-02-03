@@ -36,7 +36,8 @@
     "documentAccess": "dynamic-page",
     "networkAccess": {
       "allowedDomains": [
-        "https://ourworldindata.org"
+        "https://ourworldindata.org",
+        "https://admin.owid.io"
       ]
     },
     "permissions": [
