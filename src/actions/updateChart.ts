@@ -7,6 +7,7 @@ import {
   PLUGIN_DIMENSIONS,
 } from "../constants";
 import {
+  fetchChartViewMap,
   fetchGrapherSvg,
   findAndReplaceChildNodes,
   findChildNodeByName,
@@ -14,15 +15,20 @@ import {
   moveTargetNodeBelowClosestAbove,
   replaceChildNodes,
 } from "../helpers";
-import { UpdateChartArg } from "../types";
+import { ChartViewMap, UpdateChartArg } from "../types";
 
 export async function updateChart(
   arg: UpdateChartArg,
 ): Promise<{ success: boolean }> {
+  let chartViewMap: ChartViewMap | undefined;
+  if (arg.type === "chartViewName") {
+    chartViewMap = await fetchChartViewMap();
+  }
+
   // Fetch the SVG from the URL and create a Figma node
   let svg: string;
   try {
-    svg = await fetchGrapherSvg(arg);
+    svg = await fetchGrapherSvg(arg, chartViewMap);
   } catch (error) {
     if (error instanceof Error) {
       showUI(PLUGIN_DIMENSIONS, {

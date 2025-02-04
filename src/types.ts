@@ -5,19 +5,14 @@ export interface QueryParams {
 }
 
 export type CreateNewPageArg =
-  | { type: "url"; url: string }
-  | {
-      type: "chartViewName";
-      chartViewName: string;
-      chartViewMap: ChartViewMap;
-    };
+  | { type: "grapherUrl"; url: string }
+  | { type: "chartViewName"; chartViewName: string };
 
 export type UpdateChartArg =
-  | { type: "url"; url: string; sections?: GrapherSection[] }
+  | { type: "grapherUrl"; url: string; sections?: GrapherSection[] }
   | {
       type: "chartViewName";
       chartViewName: string;
-      chartViewMap: ChartViewMap;
       sections?: GrapherSection[];
     };
 

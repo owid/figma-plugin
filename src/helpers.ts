@@ -11,28 +11,30 @@ import {
 
 export async function fetchGrapherSvg(
   input: UpdateChartArg | CreateNewPageArg,
+  chartViewMap?: ChartViewMap,
 ) {
   switch (input.type) {
-    case "url":
+    case "grapherUrl":
       return await fetchGrapherSvgByUrl(input.url);
     case "chartViewName":
       return await fetchGrapherSvgByChartViewName(
         input.chartViewName,
-        input.chartViewMap,
+        chartViewMap!,
       );
   }
 }
 
 export async function fetchGrapherConfig(
   input: UpdateChartArg | CreateNewPageArg,
+  chartViewMap?: ChartViewMap,
 ) {
   switch (input.type) {
-    case "url":
+    case "grapherUrl":
       return await fetchGrapherConfigByUrl(input.url);
     case "chartViewName":
       return await fetchGrapherConfigByChartViewName(
         input.chartViewName,
-        input.chartViewMap,
+        chartViewMap!,
       );
   }
 }
@@ -47,6 +49,10 @@ async function fetchGrapherSvgByUrl(urlStr: string) {
 
   // Fetch SVG
   const response = await fetch(svgUrl);
+
+  if (response.status !== 200)
+    throw new Error("Resource doesn't exist: " + svgUrl);
+
   return await response.text();
 }
 
@@ -58,6 +64,10 @@ async function fetchGrapherConfigByUrl(urlStr: string) {
 
   // Fetch config
   const response = await fetch(configUrl);
+
+  if (response.status !== 200)
+    throw new Error("Resource doesn't exist: " + configUrl);
+
   return await response.json();
 }
 
@@ -81,6 +91,10 @@ async function fetchGrapherSvgByChartViewName(
 
   // Fetch SVG
   const response = await fetch(svgUrl);
+
+  if (response.status !== 200)
+    throw new Error("Resource doesn't exist: " + svgUrl);
+
   return await response.text();
 }
 
@@ -98,6 +112,10 @@ async function fetchGrapherConfigByChartViewName(
 
   // Fetch config
   const response = await fetch(configUrl);
+
+  if (response.status !== 200)
+    throw new Error("Resource doesn't exist: " + configUrl);
+
   return await response.json();
 }
 
@@ -281,3 +299,12 @@ export const strToQueryParams = (queryStr: string): QueryParams => {
 
   return params;
 };
+
+export function isValidUrl(str: string): boolean {
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
+}

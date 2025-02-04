@@ -6,23 +6,29 @@ import {
   createNewPage,
   createNewPageFromTemplatePage,
   extractTemplatePageForChartType,
+  fetchChartViewMap,
   fetchGrapherConfig,
   fetchGrapherSvg,
   inferChartType,
   makePageNameForChart,
 } from "../helpers";
-import { CreateNewPageArg, QueryParams } from "../types";
+import { ChartViewMap, CreateNewPageArg, QueryParams } from "../types";
 import { strToQueryParams } from "../helpers";
 
 export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
   success: boolean;
 }> {
+  let chartViewMap: ChartViewMap | undefined;
+  if (arg.type === "chartViewName") {
+    chartViewMap = await fetchChartViewMap();
+  }
+
   // Fetch the SVG and chart config by chart view name or url
   let svg: string, config: Record<string, any>;
   try {
     [svg, config] = await Promise.all([
-      fetchGrapherSvg(arg),
-      fetchGrapherConfig(arg),
+      fetchGrapherSvg(arg, chartViewMap),
+      fetchGrapherConfig(arg, chartViewMap),
     ]);
   } catch (error) {
     if (error instanceof Error) {
@@ -32,7 +38,7 @@ export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
   }
 
   let queryParams: QueryParams | undefined;
-  if (arg.type === "url") {
+  if (arg.type === "grapherUrl") {
     const argUrl = new Url(arg.url);
     queryParams = strToQueryParams(argUrl.query);
   }

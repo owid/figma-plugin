@@ -1,5 +1,5 @@
 import { h, JSX } from "preact";
-import { useCallback, useEffect, useState } from "preact/hooks";
+import { useCallback, useState } from "preact/hooks";
 
 import {
   Banner,
@@ -12,30 +12,40 @@ import {
   render,
   Text,
   Textbox,
-  TextboxAutocomplete,
-  TextboxAutocompleteOption,
   Toggle,
   VerticalSpace,
 } from "@create-figma-plugin/ui";
 import { emit } from "@create-figma-plugin/utilities";
 
 import {
-  ChartViewMap,
   CloseHandler,
   CreateNewDataInsightPageHandler,
   GrapherSection,
   UpdateChartHandler,
 } from "./types";
-import { fetchChartViewMap } from "./helpers";
+import { isValidUrl } from "./helpers";
 
 function Plugin({
   initialErrorMessageBackend,
 }: {
   initialErrorMessageBackend: string;
 }) {
-  const [chartViewMap, setChartViewMap] = useState<ChartViewMap>({});
-  const [grapherUrl, setGrapherUrl] = useState("");
-  const [chartViewName, setChartViewName] = useState("");
+  const [textInput, setTextInput] = useState("");
+
+  const parseTextInput = (
+    rawInput: string,
+  ): {
+    type: TextInputType | "invalid";
+    value: string;
+  } => {
+    const input = rawInput.trim();
+    const isUrl = isValidUrl(input);
+    if (isUrl) return { type: "grapherUrl", value: input };
+    else if (input.length > 0) return { type: "chartViewName", value: input };
+    else return { type: "invalid", value: input };
+  };
+
+  const data = parseTextInput(textInput);
 
   const [isAdvancedSectionOpen, setIsAdvancedSectionOpen] = useState(false);
   const [shouldUpdateChartAreaOnly, setShouldUpdateChartAreaOnly] =
@@ -48,75 +58,55 @@ function Plugin({
 
   const errorMessage = errorMessageBackend || errorMessageFrontend;
 
-  const availableChartViewNames: Array<TextboxAutocompleteOption> = Object.keys(
-    chartViewMap,
-  ).map((chartViewName) => ({ value: chartViewName }));
-
-  function onChartViewNameUpdate(event: JSX.TargetedEvent<HTMLInputElement>) {
+  function onTextInput(event: JSX.TargetedEvent<HTMLInputElement>) {
     setErrorMessageBackend("");
     setErrorMessageFrontend("");
-    setChartViewName(event.currentTarget.value);
-  }
-
-  function onGrapherUrlUpdate(event: JSX.TargetedEvent<HTMLInputElement>) {
-    setErrorMessageBackend("");
-    setErrorMessageFrontend("");
-    setGrapherUrl(event.currentTarget.value);
+    setTextInput(event.currentTarget.value);
   }
 
   const onCreateNewDataInsightPage = useCallback(() => {
-    if (chartViewName) {
+    if (data.type === "chartViewName") {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
         type: "chartViewName",
-        chartViewName,
-        chartViewMap,
+        chartViewName: data.value,
       });
-    } else if (grapherUrl) {
+    } else if (data.type === "grapherUrl") {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
-        type: "url",
-        url: grapherUrl,
+        type: "grapherUrl",
+        url: data.value,
       });
     } else {
       setErrorMessageFrontend(
-        "Please enter a chart view name or a Grapher URL",
+        "Please enter a valid narrative chart name or a Grapher URL",
       );
     }
-  }, [chartViewName, chartViewMap, grapherUrl]);
+  }, [data]);
 
   const onUpdateChart = useCallback(() => {
     const sections: GrapherSection[] | undefined = shouldUpdateChartAreaOnly
       ? ["chart-area"]
       : undefined;
-    if (chartViewName) {
+    if (data.type === "chartViewName") {
       emit<UpdateChartHandler>("UPDATE_CHART", {
         type: "chartViewName",
-        chartViewName,
-        chartViewMap,
+        chartViewName: data.value,
         sections,
       });
-    } else if (grapherUrl) {
+    } else if (data.type === "grapherUrl") {
       emit<UpdateChartHandler>("UPDATE_CHART", {
-        type: "url",
-        url: grapherUrl,
+        type: "grapherUrl",
+        url: data.value,
         sections,
       });
     } else {
       setErrorMessageFrontend(
-        "Please enter a chart view name or a Grapher URL",
+        "Please enter a valid narrative chart name or a Grapher URL",
       );
     }
-  }, [chartViewName, chartViewMap, grapherUrl, shouldUpdateChartAreaOnly]);
+  }, [data, shouldUpdateChartAreaOnly]);
 
   const onClose = useCallback(function () {
     emit<CloseHandler>("CLOSE");
-  }, []);
-
-  useEffect(() => {
-    const getChartViewMap = async () => {
-      return await fetchChartViewMap();
-    };
-
-    getChartViewMap().then((chartViewMap) => setChartViewMap(chartViewMap));
   }, []);
 
   return (
@@ -129,26 +119,10 @@ function Plugin({
       </Text>
       <VerticalSpace space="extraLarge" />
       <Text>
-        <Muted>Narrative view</Muted>
+        <Muted>Grapher URL or Narrative chart name</Muted>
       </Text>
       <VerticalSpace space="small" />
-      <TextboxAutocomplete
-        onInput={onChartViewNameUpdate}
-        options={availableChartViewNames}
-        value={chartViewName}
-        filter
-        variant="border"
-      />
-      <VerticalSpace space="medium" />
-      <Text>
-        <Muted>Grapher URL</Muted>
-      </Text>
-      <VerticalSpace space="small" />
-      <Textbox
-        value={grapherUrl}
-        onInput={onGrapherUrlUpdate}
-        variant="border"
-      />
+      <Textbox value={textInput} onInput={onTextInput} variant="border" />
       <VerticalSpace space="extraLarge" />
       <Inline space="extraSmall">
         <Button onClick={onCreateNewDataInsightPage}>Create DI page</Button>
@@ -176,4 +150,5 @@ function Plugin({
   );
 }
 
+type TextInputType = "chartViewName" | "grapherUrl";
 export default render(Plugin);
