@@ -4,7 +4,6 @@ export const OWID_URL = "https://ourworldindata.org";
 export const ADMIN_URL = "https://admin.owid.io";
 export const GRAPHER_URL = `${OWID_URL}/grapher`;
 
-// TODO: make sure these are in sync with Grapher
 export const GRAPHER_CHART_AREA = "chart-area" satisfies GrapherSection;
 export const GRAPHER_HEADER = "header" satisfies GrapherSection;
 export const GRAPHER_FOOTER = "footer" satisfies GrapherSection;
