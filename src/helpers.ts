@@ -1,6 +1,11 @@
 import Url from "url-parse";
 
-import { ADMIN_URL, CHART_TYPE_TO_TEMPLATE_PAGE, OWID_URL } from "./constants";
+import {
+  ADMIN_URL,
+  CHART_TYPE_TO_TEMPLATE_PAGE,
+  DEFAULT_SVG_QUERY_PARAMS,
+  OWID_URL,
+} from "./constants";
 import {
   ChartType,
   ChartViewMap,
@@ -44,8 +49,8 @@ async function fetchGrapherSvgByUrl(urlStr: string) {
 
   // Construct the SVG URL
   let svgUrl = `${url.origin}${url.pathname}.svg`;
-  if (url.query) svgUrl += `${url.query}&imType=square`;
-  else svgUrl += "?imType=square";
+  if (url.query) svgUrl += `${url.query}&${DEFAULT_SVG_QUERY_PARAMS}`;
+  else svgUrl += `?${DEFAULT_SVG_QUERY_PARAMS}`;
 
   // Fetch SVG
   const response = await fetch(svgUrl);
@@ -87,7 +92,7 @@ async function fetchGrapherSvgByChartViewName(
     throw new Error(`Narrative chart does not exist: ${chartViewName}`);
 
   // Construct the SVG URL
-  const svgUrl = `${OWID_URL}/grapher/by-uuid/${chartConfigId}.svg?imType=square`;
+  const svgUrl = `${OWID_URL}/grapher/by-uuid/${chartConfigId}.svg?${DEFAULT_SVG_QUERY_PARAMS}`;
 
   // Fetch SVG
   const response = await fetch(svgUrl);
