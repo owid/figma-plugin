@@ -117,13 +117,13 @@ function Plugin({
         or a Grapher URL. The chart will either be inserted into a new page or
         will be used to update the currently selected chart.
       </Text>
-      <VerticalSpace space="extraLarge" />
+      <VerticalSpace space="large" />
       <Text>
         <Muted>Grapher URL or Narrative chart name</Muted>
       </Text>
       <VerticalSpace space="small" />
       <Textbox value={textInput} onInput={onTextInput} variant="border" />
-      <VerticalSpace space="extraLarge" />
+      <VerticalSpace space="large" />
       <Inline space="extraSmall">
         <Button onClick={onCreateNewDataInsightPage}>Create DI page</Button>
         <Button onClick={onUpdateChart} secondary>

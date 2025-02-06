@@ -5,6 +5,7 @@ import {
   CHART_TYPE_TO_TEMPLATE_PAGE,
   DEFAULT_SVG_QUERY_PARAMS,
   OWID_URL,
+  TEMPLATE_PAGE_NAME_PREFIX,
 } from "./constants";
 import {
   ChartType,
@@ -133,9 +134,9 @@ export function inferChartType(
   const tab = queryParams?.["tab"];
   if (tab) {
     // Handle cases where tab is set to 'line' or 'slope'
-  if (tab === "line") return "LineChart";
-  if (tab === "slope") return "SlopeChart";
-  
+    if (tab === "line") return "LineChart";
+    if (tab === "slope") return "SlopeChart";
+
     // Handle cases where tab is set to 'chart', 'map' or 'table'
     if (tab === "table") return undefined;
     if (tab === "map") return "WorldMap";
@@ -144,7 +145,7 @@ export function inferChartType(
 
   // If the chart has a map tab and it's the default tab, use the map type
   if (config.hasMapTab && config.tab === "map") return "WorldMap";
-  
+
   // Otherwise, rely on the config's chartTypes field
   return getChartTypeFromConfigField(config.chartTypes);
 }
@@ -158,7 +159,7 @@ function getChartTypeFromConfigField(
 }
 
 function makeTemplatePageName(chartType: ChartType) {
-  return `[Plugin template] ${CHART_TYPE_TO_TEMPLATE_PAGE[chartType]}`;
+  return `${TEMPLATE_PAGE_NAME_PREFIX}${CHART_TYPE_TO_TEMPLATE_PAGE[chartType]}`;
 }
 
 export function extractTemplatePageForChartType(chartType: ChartType) {
