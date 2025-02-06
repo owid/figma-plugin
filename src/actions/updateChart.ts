@@ -25,7 +25,7 @@ export async function updateChart(
     chartViewMap = await fetchChartViewMap();
   }
 
-  // Fetch the SVG from the URL and create a Figma node
+  // Fetch the SVG by chart view name or url
   let svg: string;
   try {
     svg = await fetchGrapherSvg(arg, chartViewMap);
@@ -51,7 +51,7 @@ export async function updateChart(
 
     // Try to find the 'header' element in the selected node.
     // If found, replace its children with contents of the new SVG.
-    // If not found, we assume the header or footer has been replaced by the user,
+    // If not found, we assume the header has been replaced by the user,
     // so we respect the user's changes and leave the header as is
     const isHeaderReplaced = shouldUpdateHeader
       ? findAndReplaceChildNodes(selectedNode, newSvgNode, GRAPHER_HEADER)
@@ -97,6 +97,7 @@ export async function updateChart(
     }
   }
 
+  // Clean up
   newSvgNode.remove();
 
   return { success: true };
