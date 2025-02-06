@@ -129,15 +129,32 @@ export function inferChartType(
   config: Record<string, any>,
   queryParams?: QueryParams,
 ): ChartType | undefined {
-  // If the query params specify a tab, use that
+  // If the tab query parameter is set, use it to determine the chart type
   const tab = queryParams?.["tab"];
-  if (tab === "map") return "WorldMap";
+  if (tab) {
+    // Handle cases where tab is set to 'line' or 'slope'
   if (tab === "line") return "LineChart";
   if (tab === "slope") return "SlopeChart";
-  // Else, use the chart type from the config
+  
+    // Handle cases where tab is set to 'chart', 'map' or 'table'
+    if (tab === "table") return undefined;
+    if (tab === "map") return "WorldMap";
+    if (tab === "chart") return getChartTypeFromConfigField(config.chartTypes);
+  }
+
+  // If the chart has a map tab and it's the default tab, use the map type
   if (config.hasMapTab && config.tab === "map") return "WorldMap";
-  if (!config.chartTypes) return "LineChart";
-  return config.chartTypes[0];
+  
+  // Otherwise, rely on the config's chartTypes field
+  return getChartTypeFromConfigField(config.chartTypes);
+}
+
+function getChartTypeFromConfigField(
+  chartTypes?: ChartType[],
+): ChartType | undefined {
+  if (!chartTypes) return "LineChart";
+  if (chartTypes.length === 0) return undefined;
+  return chartTypes[0];
 }
 
 function makeTemplatePageName(chartType: ChartType) {
