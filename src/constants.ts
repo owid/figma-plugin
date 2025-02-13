@@ -3,6 +3,7 @@ import { ChartType, GrapherSection, TemplatePageName } from "./types";
 export const OWID_URL = "https://ourworldindata.org";
 export const ADMIN_URL = "https://admin.owid.io";
 export const GRAPHER_URL = `${OWID_URL}/grapher`;
+export const EXPLORER_URL = `${OWID_URL}/explorers`;
 export const DEFAULT_SVG_QUERY_PARAMS = "imType=square&nocache";
 
 export const GRAPHER_CHART_AREA = "chart-area" satisfies GrapherSection;

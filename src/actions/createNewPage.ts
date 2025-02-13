@@ -24,7 +24,7 @@ export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
   }
 
   // Fetch the SVG and chart config by chart view name or url
-  let svg: string, config: Record<string, any>;
+  let svg: string, config: Record<string, any> | undefined;
   try {
     [svg, config] = await Promise.all([
       fetchGrapherSvg(arg, chartViewMap),
@@ -44,7 +44,7 @@ export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
   }
 
   // Pick the template page based on the chart type
-  const chartType = inferChartType(config, queryParams);
+  const chartType = config ? inferChartType(config, queryParams) : undefined;
   const templatePage = chartType
     ? extractTemplatePageForChartType(chartType)
     : undefined;

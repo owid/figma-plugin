@@ -6,10 +6,12 @@ export interface QueryParams {
 
 export type CreateNewPageArg =
   | { type: "grapherUrl"; url: string }
+  | { type: "explorerUrl"; url: string }
   | { type: "chartViewName"; chartViewName: string };
 
 export type UpdateChartArg =
   | { type: "grapherUrl"; url: string; sections?: GrapherSection[] }
+  | { type: "explorerUrl"; url: string; sections?: GrapherSection[] }
   | {
       type: "chartViewName";
       chartViewName: string;

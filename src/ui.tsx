@@ -24,6 +24,7 @@ import {
   UpdateChartHandler,
 } from "./types";
 import { isValidUrl } from "./helpers";
+import { EXPLORER_URL, GRAPHER_URL } from "./constants";
 
 function Plugin({
   initialErrorMessageBackend,
@@ -40,7 +41,10 @@ function Plugin({
   } => {
     const input = rawInput.trim();
     const isUrl = isValidUrl(input);
-    if (isUrl) return { type: "grapherUrl", value: input };
+    if (isUrl && input.startsWith(`${GRAPHER_URL}/`))
+      return { type: "grapherUrl", value: input };
+    if (isUrl && input.startsWith(`${EXPLORER_URL}/`))
+      return { type: "explorerUrl", value: input };
     else if (input.length > 0) return { type: "chartViewName", value: input };
     else return { type: "invalid", value: input };
   };
@@ -75,9 +79,14 @@ function Plugin({
         type: "grapherUrl",
         url: data.value,
       });
+    } else if (data.type === "explorerUrl") {
+      emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
+        type: "explorerUrl",
+        url: data.value,
+      });
     } else {
       setErrorMessageFrontend(
-        "Please enter a valid narrative chart name or a Grapher URL",
+        "Please enter a valid narrative chart name or a Grapher or Explorer URL",
       );
     }
   }, [data]);
@@ -98,9 +107,15 @@ function Plugin({
         url: data.value,
         sections,
       });
+    } else if (data.type === "explorerUrl") {
+      emit<UpdateChartHandler>("UPDATE_CHART", {
+        type: "explorerUrl",
+        url: data.value,
+        sections,
+      });
     } else {
       setErrorMessageFrontend(
-        "Please enter a valid narrative chart name or a Grapher URL",
+        "Please enter a valid narrative chart name, a Grapher or Explorer URL",
       );
     }
   }, [data, shouldUpdateChartAreaOnly]);
@@ -119,7 +134,7 @@ function Plugin({
       </Text>
       <VerticalSpace space="large" />
       <Text>
-        <Muted>Grapher URL or Narrative chart name</Muted>
+        <Muted>Narrative chart or Grapher/Explorer URL</Muted>
       </Text>
       <VerticalSpace space="small" />
       <Textbox value={textInput} onInput={onTextInput} variant="border" />
@@ -150,5 +165,5 @@ function Plugin({
   );
 }
 
-type TextInputType = "chartViewName" | "grapherUrl";
+type TextInputType = "chartViewName" | "grapherUrl" | "explorerUrl";
 export default render(Plugin);

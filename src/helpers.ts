@@ -21,7 +21,8 @@ export async function fetchGrapherSvg(
 ) {
   switch (input.type) {
     case "grapherUrl":
-      return await fetchGrapherSvgByUrl(input.url);
+    case "explorerUrl":
+      return await fetchGrapherOrExplorerSvgByUrl(input.url);
     case "chartViewName":
       return await fetchGrapherSvgByChartViewName(
         input.chartViewName,
@@ -37,6 +38,8 @@ export async function fetchGrapherConfig(
   switch (input.type) {
     case "grapherUrl":
       return await fetchGrapherConfigByUrl(input.url);
+    case "explorerUrl":
+      return undefined; // can't fetch configs for explorers
     case "chartViewName":
       return await fetchGrapherConfigByChartViewName(
         input.chartViewName,
@@ -45,7 +48,7 @@ export async function fetchGrapherConfig(
   }
 }
 
-async function fetchGrapherSvgByUrl(urlStr: string) {
+async function fetchGrapherOrExplorerSvgByUrl(urlStr: string) {
   const url = new Url(urlStr);
 
   // Construct the SVG URL
@@ -174,10 +177,10 @@ export function extractTemplatePageForChartType(chartType: ChartType) {
   return templatePage;
 }
 
-export function makePageNameForChart(config: Record<string, any>) {
+export function makePageNameForChart(config?: Record<string, any>) {
   const date = getCurrentDate();
   const userName = getUserName();
-  const chartTitle = config.title || "Untitled chart";
+  const chartTitle = config?.title || "Untitled chart";
   let pageName = `${date} ${chartTitle}`;
   if (userName) pageName += ` (${userName})`;
   return pageName;
