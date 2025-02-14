@@ -21,13 +21,13 @@ export const PLUGIN_DIMENSIONS = {
 
 export const CHART_TYPE_TO_TEMPLATE_PAGE: Record<ChartType, TemplatePageName> =
   {
-    LineChart: "Line chart",
-    SlopeChart: "Line chart",
-    DiscreteBar: "Bar chart",
-    StackedDiscreteBar: "Bar chart",
-    Marimekko: "Bar chart",
-    StackedBar: "Stacked chart",
-    StackedArea: "Stacked chart",
-    ScatterPlot: "Scatter plot",
-    WorldMap: "World map",
+    LineChart: "Line charts",
+    SlopeChart: "Slope charts",
+    DiscreteBar: "Bar charts",
+    StackedDiscreteBar: "Bar charts",
+    Marimekko: "Bar charts",
+    StackedBar: "Bar charts",
+    StackedArea: "Stacked area charts",
+    ScatterPlot: "Scatter plots",
+    WorldMap: "Maps",
   };

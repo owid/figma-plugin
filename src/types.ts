@@ -51,10 +51,11 @@ export type ChartType =
   | "WorldMap";
 
 export type TemplatePageName =
-  | "Line chart"
-  | "Bar chart"
-  | "Stacked chart"
-  | "Scatter plot"
-  | "World map";
+  | "Line charts"
+  | "Stacked area charts"
+  | "Bar charts"
+  | "Slope charts"
+  | "Scatter plots"
+  | "Maps";
 
 export type ChartViewMap = Record<string, string>;
