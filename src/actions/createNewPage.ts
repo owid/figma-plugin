@@ -71,6 +71,7 @@ export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
 
   // Scroll the chart into view
   figma.viewport.scrollAndZoomIntoView([chartNode]);
+  figma.viewport.zoom = 0.5;
 
   // Remove the placeholder node
   placeholderNode?.remove();
