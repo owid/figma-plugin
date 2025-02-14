@@ -4,6 +4,7 @@ import {
   ADMIN_URL,
   CHART_TYPE_TO_TEMPLATE_PAGE,
   DEFAULT_SVG_QUERY_PARAMS,
+  IGNORE_SUFFIX,
   OWID_URL,
   TEMPLATE_PAGE_NAME_PREFIX,
 } from "./constants";
@@ -218,7 +219,7 @@ export async function createNewPageFromTemplatePage(
   // Copy all nodes from the template page to the new page
   for (const node of templatePage.children) {
     // Ignore nodes with "[ignore]" in their name
-    if (node.name.toLowerCase().includes("[ignore]")) continue;
+    if (node.name.toLowerCase().endsWith(IGNORE_SUFFIX)) continue;
 
     const newNode = node.clone();
     newPage.appendChild(newNode);

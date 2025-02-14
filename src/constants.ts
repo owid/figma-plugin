@@ -10,7 +10,9 @@ export const GRAPHER_CHART_AREA = "chart-area" satisfies GrapherSection;
 export const GRAPHER_HEADER = "header" satisfies GrapherSection;
 export const GRAPHER_FOOTER = "footer" satisfies GrapherSection;
 
-export const TEMPLATE_PAGE_NAME_PREFIX = "[Plugin] ";
+export const TEMPLATE_PAGE_NAME_PREFIX = "Plugin / ";
+export const PLACEHOLDER_NAME = "Plugin / Placeholder";
+export const IGNORE_SUFFIX = "/ ignore";
 
 export const PLUGIN_DIMENSIONS = {
   height: 300,

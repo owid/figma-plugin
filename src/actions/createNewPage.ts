@@ -1,7 +1,7 @@
 import Url from "url-parse";
 import { showUI } from "@create-figma-plugin/utilities";
 
-import { PLUGIN_DIMENSIONS } from "../constants";
+import { PLACEHOLDER_NAME, PLUGIN_DIMENSIONS } from "../constants";
 import {
   createNewPage,
   createNewPageFromTemplatePage,
@@ -9,6 +9,7 @@ import {
   fetchChartViewMap,
   fetchGrapherConfig,
   fetchGrapherSvg,
+  findChildNodeByName,
   inferChartType,
   makePageNameForChart,
 } from "../helpers";
@@ -55,10 +56,24 @@ export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
     ? await createNewPageFromTemplatePage(templatePage, { pageName })
     : await createNewPage(pageName);
 
-  // Set the new page as the current page, add the SVG and scroll it into view
+  // Find the placeholder element for the chart
+  const placeholderNode = findChildNodeByName(page, PLACEHOLDER_NAME);
+  const x = placeholderNode?.x ?? 0;
+  const y = placeholderNode?.y ?? 0;
+
+  // Set the new page as the current page
   await figma.setCurrentPageAsync(page);
+
+  // Add the SVG and adjust its position
   const chartNode = figma.createNodeFromSvg(svg);
+  chartNode.x = x;
+  chartNode.y = y;
+
+  // Scroll the chart into view
   figma.viewport.scrollAndZoomIntoView([chartNode]);
+
+  // Remove the placeholder node
+  placeholderNode?.remove();
 
   return { success: true };
 }
