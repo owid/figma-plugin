@@ -26,12 +26,8 @@ import {
 import { isValidUrl } from "./helpers";
 import { EXPLORER_URL, GRAPHER_URL } from "./constants";
 
-function Plugin({
-  initialErrorMessageBackend,
-}: {
-  initialErrorMessageBackend: string;
-}) {
-  const [textInput, setTextInput] = useState("");
+function Plugin(props: { textInput: string; errorMessageBackend: string }) {
+  const [textInput, setTextInput] = useState(props.textInput ?? "");
 
   const parseTextInput = (
     rawInput: string,
@@ -56,7 +52,7 @@ function Plugin({
     useState(false);
 
   const [errorMessageBackend, setErrorMessageBackend] = useState(
-    initialErrorMessageBackend,
+    props.errorMessageBackend,
   );
   const [errorMessageFrontend, setErrorMessageFrontend] = useState("");
 
@@ -73,16 +69,19 @@ function Plugin({
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
         type: "chartViewName",
         chartViewName: data.value,
+        textInput,
       });
     } else if (data.type === "grapherUrl") {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
         type: "grapherUrl",
         url: data.value,
+        textInput,
       });
     } else if (data.type === "explorerUrl") {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
         type: "explorerUrl",
         url: data.value,
+        textInput,
       });
     } else {
       setErrorMessageFrontend(
@@ -100,18 +99,21 @@ function Plugin({
         type: "chartViewName",
         chartViewName: data.value,
         sections,
+        textInput,
       });
     } else if (data.type === "grapherUrl") {
       emit<UpdateChartHandler>("UPDATE_CHART", {
         type: "grapherUrl",
         url: data.value,
         sections,
+        textInput,
       });
     } else if (data.type === "explorerUrl") {
       emit<UpdateChartHandler>("UPDATE_CHART", {
         type: "explorerUrl",
         url: data.value,
         sections,
+        textInput,
       });
     } else {
       setErrorMessageFrontend(

@@ -60,8 +60,7 @@ async function fetchGrapherOrExplorerSvgByUrl(urlStr: string) {
   // Fetch SVG
   const response = await fetch(svgUrl);
 
-  if (response.status !== 200)
-    throw new Error("Resource doesn't exist: " + svgUrl);
+  if (response.status !== 200) throw new Error("Failed to fetch " + svgUrl);
 
   return await response.text();
 }
@@ -75,8 +74,7 @@ async function fetchGrapherConfigByUrl(urlStr: string) {
   // Fetch config
   const response = await fetch(configUrl);
 
-  if (response.status !== 200)
-    throw new Error("Resource doesn't exist: " + configUrl);
+  if (response.status !== 200) throw new Error("Failed to fetch " + configUrl);
 
   return await response.json();
 }
@@ -102,8 +100,7 @@ async function fetchGrapherSvgByChartViewName(
   // Fetch SVG
   const response = await fetch(svgUrl);
 
-  if (response.status !== 200)
-    throw new Error("Resource doesn't exist: " + svgUrl);
+  if (response.status !== 200) throw new Error("Failed to fetch " + svgUrl);
 
   return await response.text();
 }
@@ -123,8 +120,7 @@ async function fetchGrapherConfigByChartViewName(
   // Fetch config
   const response = await fetch(configUrl);
 
-  if (response.status !== 200)
-    throw new Error("Resource doesn't exist: " + configUrl);
+  if (response.status !== 200) throw new Error("Failed to fetch " + configUrl);
 
   return await response.json();
 }

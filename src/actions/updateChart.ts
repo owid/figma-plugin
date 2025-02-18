@@ -30,11 +30,12 @@ export async function updateChart(
   try {
     svg = await fetchGrapherSvg(arg, chartViewMap);
   } catch (error) {
-    if (error instanceof Error) {
-      showUI(PLUGIN_DIMENSIONS, {
-        initialErrorMessageBackend: error.message,
-      });
-    }
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch";
+    showUI(PLUGIN_DIMENSIONS, {
+      textInput: arg.textInput,
+      errorMessageBackend: errorMessage,
+    });
     return { success: false };
   }
 
