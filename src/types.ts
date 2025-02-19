@@ -4,27 +4,32 @@ export interface QueryParams {
   [key: string]: string | undefined;
 }
 
+interface RawTextInput {
+  forImportChartField?: string;
+  forUpdateChartField?: string;
+}
+
 export type CreateNewPageArg =
-  | { type: "grapherUrl"; textInput: string; url: string }
-  | { type: "explorerUrl"; textInput: string; url: string }
-  | { type: "chartViewName"; textInput: string; chartViewName: string };
+  | { type: "grapherUrl"; textInput: RawTextInput; url: string }
+  | { type: "explorerUrl"; textInput: RawTextInput; url: string }
+  | { type: "chartViewName"; textInput: RawTextInput; chartViewName: string };
 
 export type UpdateChartArg =
   | {
       type: "grapherUrl";
-      textInput: string;
+      textInput: RawTextInput;
       url: string;
       sections?: GrapherSection[];
     }
   | {
       type: "explorerUrl";
-      textInput: string;
+      textInput: RawTextInput;
       url: string;
       sections?: GrapherSection[];
     }
   | {
       type: "chartViewName";
-      textInput: string;
+      textInput: RawTextInput;
       chartViewName: string;
       sections?: GrapherSection[];
     };

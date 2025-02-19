@@ -20,6 +20,15 @@ import { ChartViewMap, UpdateChartArg } from "../types";
 export async function updateChart(
   arg: UpdateChartArg,
 ): Promise<{ success: boolean }> {
+  if (figma.currentPage.selection.length === 0) {
+    showUI(PLUGIN_DIMENSIONS, {
+      textInput: arg.textInput,
+      errorMessageBackend:
+        "No chart selected. Select a chart by clicking on the frame and try again.",
+    });
+    return { success: false };
+  }
+
   let chartViewMap: ChartViewMap | undefined;
   if (arg.type === "chartViewName") {
     chartViewMap = await fetchChartViewMap();

@@ -15,7 +15,7 @@ export const PLACEHOLDER_NAME = "Plugin / Placeholder";
 export const IGNORE_SUFFIX = "/ ignore";
 
 export const PLUGIN_DIMENSIONS = {
-  height: 300,
+  height: 500,
   width: 420,
 };
 
