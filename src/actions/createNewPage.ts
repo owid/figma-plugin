@@ -72,6 +72,9 @@ export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
   chartNode.x = x;
   chartNode.y = y;
 
+  // Update the chart frame's name
+  if (config?.title) chartNode.name = config.title;
+
   // Scroll the chart into view
   figma.viewport.scrollAndZoomIntoView([chartNode]);
   figma.viewport.zoom = 0.5;
