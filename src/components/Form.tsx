@@ -58,7 +58,7 @@ export function Form(props: {
         value={textInput}
         onInput={handleInput}
         onKeyDown={handleKeyDown}
-        placeholder="Narrative chart slug, Grapher, or Explorer URL"
+        placeholder="Narrative chart name, Grapher, or Explorer URL"
         variant="border"
       />
       <VerticalSpace space="medium" />
