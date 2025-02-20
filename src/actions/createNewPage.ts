@@ -42,13 +42,13 @@ export async function createNewDataInsightPage(arg: HandlerArgs): Promise<{
   }
 
   let queryParams: QueryParams | undefined;
-  if (arg.type === "grapherUrl") {
+  if (arg.type === "grapherUrl" || arg.type === "explorerUrl") {
     const argUrl = new Url(arg.url);
     queryParams = strToQueryParams(argUrl.query);
   }
 
   // Pick the template page based on the chart type
-  const chartType = config ? inferChartType(config, queryParams) : undefined;
+  const chartType = inferChartType(config, queryParams);
   const templatePage = chartType
     ? extractTemplatePageForChartType(chartType)
     : undefined;

@@ -136,7 +136,7 @@ async function fetchGrapherConfigByChartViewName(
 
 /** Infer the chart type from the chart config and the query params */
 export function inferChartType(
-  config: Record<string, any>,
+  config?: Record<string, any>,
   queryParams?: QueryParams,
 ): ChartType | undefined {
   // If the tab query parameter is set, use it to determine the chart type
@@ -149,8 +149,14 @@ export function inferChartType(
     // Handle cases where tab is set to 'chart', 'map' or 'table'
     if (tab === "table") return undefined;
     if (tab === "map") return "WorldMap";
-    if (tab === "chart") return getChartTypeFromConfigField(config.chartTypes);
+    if (tab === "chart")
+      return config
+        ? getChartTypeFromConfigField(config.chartTypes)
+        : undefined;
   }
+
+  // If no config is given, give up
+  if (!config) return undefined;
 
   // If the chart has a map tab and it's the default tab, use the map type
   if (config.hasMapTab && config.tab === "map") return "WorldMap";
