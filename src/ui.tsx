@@ -1,23 +1,23 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import { useCallback, useState } from "preact/hooks";
 
 import {
   Banner,
   Container,
-  Disclosure,
-  Divider,
   IconInfo32,
   render,
-  Text,
-  Toggle,
+  Tabs,
+  TabsOption,
   VerticalSpace,
 } from "@create-figma-plugin/ui";
 import { emit } from "@create-figma-plugin/utilities";
 
 import {
+  AdvancedOptions,
   CloseHandler,
   CreateNewDataInsightPageHandler,
-  GrapherSection,
+  TabName,
+  UIState,
   UpdateChartHandler,
 } from "./types";
 import { isValidUrl } from "./helpers";
@@ -25,12 +25,13 @@ import { EXPLORER_URL, GRAPHER_URL } from "./constants";
 import { Form } from "./components/Form";
 
 function Plugin(props: {
-  textInput?: { forImportChartField?: string; forUpdateChartField?: string };
+  currentTab?: TabName;
+  textInput?: { importChartField?: string; updateChartField?: string };
   errorMessageBackend?: string;
 }) {
-  const [isAdvancedSectionOpen, setIsAdvancedSectionOpen] = useState(false);
-  const [shouldUpdateChartAreaOnly, setShouldUpdateChartAreaOnly] =
-    useState(false);
+  const [currentTab, setCurrentTab] = useState<TabName>(
+    props.currentTab ?? "Import chart",
+  );
 
   const [errorMessageBackend, setErrorMessageBackend] = useState(
     props.errorMessageBackend,
@@ -44,58 +45,56 @@ function Plugin(props: {
     setErrorMessageFrontend("");
   };
 
-  const importChart = (text: string) => {
+  const importChart = (text: string, options: AdvancedOptions = {}) => {
     const data = parseTextInput(text);
+
+    const uiState: UIState = {
+      currentTab,
+      textInput: { importChartField: text },
+    };
+
     if (data.type === "chartViewName") {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
         type: "chartViewName",
         chartViewName: data.value,
-        textInput: { forImportChartField: text },
+        options,
+        uiState,
       });
-    } else if (data.type === "grapherUrl") {
+    } else if (data.type === "grapherUrl" || data.type === "explorerUrl") {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
-        type: "grapherUrl",
+        type: data.type,
         url: data.value,
-        textInput: { forImportChartField: text },
-      });
-    } else if (data.type === "explorerUrl") {
-      emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
-        type: "explorerUrl",
-        url: data.value,
-        textInput: { forImportChartField: text },
+        options,
+        uiState,
       });
     } else {
       setErrorMessageFrontend(
-        "Please enter a valid narrative chart name or a Grapher or Explorer URL",
+        "Please enter a valid narrative chart name or a Grapher/Explorer URL",
       );
     }
   };
 
-  const updateChart = (text: string) => {
+  const updateChart = (text: string, options: AdvancedOptions = {}) => {
     const data = parseTextInput(text);
-    const sections: GrapherSection[] | undefined = shouldUpdateChartAreaOnly
-      ? ["chart-area"]
-      : undefined;
+
+    const uiState: UIState = {
+      currentTab,
+      textInput: { updateChartField: text },
+    };
+
     if (data.type === "chartViewName") {
       emit<UpdateChartHandler>("UPDATE_CHART", {
         type: "chartViewName",
         chartViewName: data.value,
-        sections,
-        textInput: { forUpdateChartField: text },
+        options,
+        uiState,
       });
-    } else if (data.type === "grapherUrl") {
+    } else if (data.type === "grapherUrl" || data.type === "explorerUrl") {
       emit<UpdateChartHandler>("UPDATE_CHART", {
-        type: "grapherUrl",
+        type: data.type,
         url: data.value,
-        sections,
-        textInput: { forUpdateChartField: text },
-      });
-    } else if (data.type === "explorerUrl") {
-      emit<UpdateChartHandler>("UPDATE_CHART", {
-        type: "explorerUrl",
-        url: data.value,
-        sections,
-        textInput: { forUpdateChartField: text },
+        options,
+        uiState,
       });
     } else {
       setErrorMessageFrontend(
@@ -108,54 +107,55 @@ function Plugin(props: {
     emit<CloseHandler>("CLOSE");
   }, []);
 
+  const tabs: TabsOption[] = [
+    {
+      value: "Import chart",
+      children: (
+        <Form
+          key="import"
+          title="Import a chart from Grapher to Figma"
+          description="Enter the name of a narrative chart, a Grapher or an Explorer URL to import it into this file."
+          action="Import chart"
+          advancedOptions={["beigeBackground"]}
+          textInput={props.textInput?.importChartField}
+          onTextInput={resetErrorMessages}
+          onClick={importChart}
+        />
+      ),
+    },
+    {
+      value: "Update chart",
+      children: (
+        <Form
+          key="update"
+          title="Update an existing chart in Figma with new data from Grapher"
+          description="If you've made edits to your chart in Figma but want to update it with new data or settings (like a different entity selection), select the frame containing your chart and click the button below."
+          action="Update chart"
+          advancedOptions={["beigeBackground", "updateChartAreaOnly"]}
+          textInput={props.textInput?.updateChartField}
+          onTextInput={resetErrorMessages}
+          onClick={updateChart}
+        />
+      ),
+    },
+  ];
+
   return (
     <Container space="medium" onClose={onClose}>
-      <VerticalSpace space="small" />
-      {errorMessage && <Banner icon={<IconInfo32 />}>{errorMessage}</Banner>}
-
-      <VerticalSpace space="small" />
-
-      <Form
-        title="Import a chart from Grapher to Figma"
-        description="Enter the name of a narrative chart, a Grapher or an Explorer URL to import it into this file."
-        action="Import chart"
-        textInput={props.textInput?.forImportChartField}
-        onTextInput={resetErrorMessages}
-        onClick={importChart}
+      <VerticalSpace space="extraSmall" />
+      {errorMessage && (
+        <Fragment>
+          <Banner icon={<IconInfo32 />}>{errorMessage}</Banner>
+          <VerticalSpace space="small" />
+        </Fragment>
+      )}
+      <Tabs
+        onChange={(event) =>
+          setCurrentTab(event.currentTarget.value as TabName)
+        }
+        options={tabs}
+        value={currentTab}
       />
-
-      <VerticalSpace space="large" />
-      <Divider />
-      <VerticalSpace space="large" />
-
-      <Form
-        title="Update an existing chart in Figma with new data from Grapher"
-        description="If you've already edited your chart in Figma but want to update it with data from Grapher such as entity selection or a data update, select the Frame your chart is in and click the button below."
-        action="Update chart"
-        textInput={props.textInput?.forUpdateChartField}
-        onTextInput={resetErrorMessages}
-        onClick={updateChart}
-      />
-
-      <VerticalSpace space="large" />
-
-      <Disclosure
-        onClick={() => setIsAdvancedSectionOpen(!isAdvancedSectionOpen)}
-        open={isAdvancedSectionOpen}
-        title="Advanced options"
-      >
-        <Toggle
-          onChange={(event) =>
-            setShouldUpdateChartAreaOnly(event.currentTarget.checked)
-          }
-          value={shouldUpdateChartAreaOnly}
-        >
-          <Text>
-            Only update the chart area. The header and footer of the chart will
-            remain unchanged.
-          </Text>
-        </Toggle>
-      </Disclosure>
     </Container>
   );
 }

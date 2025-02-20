@@ -4,35 +4,35 @@ export interface QueryParams {
   [key: string]: string | undefined;
 }
 
-interface RawTextInput {
-  forImportChartField?: string;
-  forUpdateChartField?: string;
+export type TabName = "Import chart" | "Update chart";
+
+export type AdvancedOption = "updateChartAreaOnly" | "beigeBackground";
+export type AdvancedOptions = Partial<Record<AdvancedOption, boolean>>;
+
+export interface UIState {
+  currentTab?: TabName;
+  textInput?: {
+    importChartField?: string;
+    updateChartField?: string;
+  };
 }
 
-export type CreateNewPageArg =
-  | { type: "grapherUrl"; textInput: RawTextInput; url: string }
-  | { type: "explorerUrl"; textInput: RawTextInput; url: string }
-  | { type: "chartViewName"; textInput: RawTextInput; chartViewName: string };
+interface CommonArgs {
+  uiState: UIState;
+  options: AdvancedOptions;
+}
 
-export type UpdateChartArg =
-  | {
-      type: "grapherUrl";
-      textInput: RawTextInput;
-      url: string;
-      sections?: GrapherSection[];
-    }
-  | {
-      type: "explorerUrl";
-      textInput: RawTextInput;
-      url: string;
-      sections?: GrapherSection[];
-    }
-  | {
-      type: "chartViewName";
-      textInput: RawTextInput;
-      chartViewName: string;
-      sections?: GrapherSection[];
-    };
+interface UrlArgs {
+  type: "grapherUrl" | "explorerUrl";
+  url: string;
+}
+
+interface ChartViewArgs {
+  type: "chartViewName";
+  chartViewName: string;
+}
+
+export type HandlerArgs = CommonArgs & (UrlArgs | ChartViewArgs);
 
 export interface PluginProps {
   errorMessageBackend: string;
@@ -40,12 +40,12 @@ export interface PluginProps {
 
 export interface CreateNewDataInsightPageHandler extends EventHandler {
   name: "CREATE_NEW_DATA_INSIGHT_PAGE";
-  handler: (arg: CreateNewPageArg) => void;
+  handler: (arg: HandlerArgs) => void;
 }
 
 export interface UpdateChartHandler extends EventHandler {
   name: "UPDATE_CHART";
-  handler: (arg: UpdateChartArg) => void;
+  handler: (arg: HandlerArgs) => void;
 }
 
 export interface CloseHandler extends EventHandler {

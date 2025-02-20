@@ -15,14 +15,14 @@ import {
   moveTargetNodeBelowClosestAbove,
   replaceChildNodes,
 } from "../helpers";
-import { ChartViewMap, UpdateChartArg } from "../types";
+import { ChartViewMap, HandlerArgs } from "../types";
 
 export async function updateChart(
-  arg: UpdateChartArg,
+  arg: HandlerArgs,
 ): Promise<{ success: boolean }> {
   if (figma.currentPage.selection.length === 0) {
     showUI(PLUGIN_DIMENSIONS, {
-      textInput: arg.textInput,
+      ...arg.uiState,
       errorMessageBackend:
         "No chart selected. Select a chart by clicking on the frame and try again.",
     });
@@ -42,14 +42,16 @@ export async function updateChart(
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch";
     showUI(PLUGIN_DIMENSIONS, {
-      textInput: arg.textInput,
+      ...arg.uiState,
       errorMessageBackend: errorMessage,
     });
     return { success: false };
   }
 
   // Default to updating all sections
-  const sections = arg.sections ?? ["header", "footer", "chart-area"];
+  const sections = arg.options.updateChartAreaOnly
+    ? ["chart-area"]
+    : ["header", "footer", "chart-area"];
   const shouldUpdateHeader = sections.includes("header");
   const shouldUpdateFooter = sections.includes("footer");
   const shouldUpdateChartArea = sections.includes("chart-area");

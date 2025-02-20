@@ -3,37 +3,31 @@ import Url from "url-parse";
 import {
   ADMIN_URL,
   CHART_TYPE_TO_TEMPLATE_PAGE,
-  DEFAULT_SVG_QUERY_PARAMS,
   IGNORE_SUFFIX,
   OWID_URL,
   TEMPLATE_PAGE_NAME_PREFIX,
 } from "./constants";
-import {
-  ChartType,
-  ChartViewMap,
-  CreateNewPageArg,
-  QueryParams,
-  UpdateChartArg,
-} from "./types";
+import { ChartType, ChartViewMap, HandlerArgs, QueryParams } from "./types";
 
 export async function fetchGrapherSvg(
-  input: UpdateChartArg | CreateNewPageArg,
+  input: HandlerArgs,
   chartViewMap?: ChartViewMap,
 ) {
   switch (input.type) {
     case "grapherUrl":
     case "explorerUrl":
-      return await fetchGrapherOrExplorerSvgByUrl(input.url);
+      return await fetchGrapherOrExplorerSvgByUrl(input.url, input.options);
     case "chartViewName":
       return await fetchGrapherSvgByChartViewName(
         input.chartViewName,
         chartViewMap!,
+        input.options,
       );
   }
 }
 
 export async function fetchGrapherConfig(
-  input: UpdateChartArg | CreateNewPageArg,
+  input: HandlerArgs,
   chartViewMap?: ChartViewMap,
 ) {
   switch (input.type) {
@@ -49,13 +43,21 @@ export async function fetchGrapherConfig(
   }
 }
 
-async function fetchGrapherOrExplorerSvgByUrl(urlStr: string) {
+async function fetchGrapherOrExplorerSvgByUrl(
+  urlStr: string,
+  options?: { beigeBackground?: boolean },
+) {
   const url = new Url(urlStr);
 
+  // Update query params
+  const queryParams = strToQueryParams(url.query);
+  queryParams.imType = options?.beigeBackground
+    ? "social-media-square"
+    : "square";
+  queryParams.nocache = "true";
+
   // Construct the SVG URL
-  let svgUrl = `${url.origin}${url.pathname}.svg`;
-  if (url.query) svgUrl += `${url.query}&${DEFAULT_SVG_QUERY_PARAMS}`;
-  else svgUrl += `?${DEFAULT_SVG_QUERY_PARAMS}`;
+  let svgUrl = `${url.origin}${url.pathname}.svg${queryParamsToStr(queryParams)}`;
 
   // Fetch SVG
   const response = await fetch(svgUrl);
@@ -88,14 +90,21 @@ export async function fetchChartViewMap() {
 async function fetchGrapherSvgByChartViewName(
   chartViewName: string,
   chartViewMap: ChartViewMap,
+  options?: { beigeBackground?: boolean },
 ) {
   // Get the chart config ID
   const chartConfigId = chartViewMap[chartViewName];
   if (!chartConfigId)
     throw new Error(`Narrative chart does not exist: ${chartViewName}`);
 
+  // Add query params
+  const queryParams = {
+    imType: options?.beigeBackground ? "social-media-square" : "square",
+    nocache: "true",
+  };
+
   // Construct the SVG URL
-  const svgUrl = `${OWID_URL}/grapher/by-uuid/${chartConfigId}.svg?${DEFAULT_SVG_QUERY_PARAMS}`;
+  const svgUrl = `${OWID_URL}/grapher/by-uuid/${chartConfigId}.svg${queryParamsToStr(queryParams)}`;
 
   // Fetch SVG
   const response = await fetch(svgUrl);
@@ -321,6 +330,17 @@ export const strToQueryParams = (queryStr: string): QueryParams => {
   }
 
   return params;
+};
+
+export const queryParamsToStr = (params: QueryParams): string => {
+  const queryStr = Object.keys(params)
+    .filter((key) => params[key] !== undefined)
+    .map(
+      (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key]!)}`,
+    )
+    .join("&");
+
+  return queryStr ? `?${queryStr}` : "";
 };
 
 export function isValidUrl(str: string): boolean {

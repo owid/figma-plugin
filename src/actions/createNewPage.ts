@@ -13,10 +13,10 @@ import {
   inferChartType,
   makePageNameForChart,
 } from "../helpers";
-import { ChartViewMap, CreateNewPageArg, QueryParams } from "../types";
+import { ChartViewMap, HandlerArgs, QueryParams } from "../types";
 import { strToQueryParams } from "../helpers";
 
-export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
+export async function createNewDataInsightPage(arg: HandlerArgs): Promise<{
   success: boolean;
 }> {
   let chartViewMap: ChartViewMap | undefined;
@@ -35,7 +35,7 @@ export async function createNewDataInsightPage(arg: CreateNewPageArg): Promise<{
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch";
     showUI(PLUGIN_DIMENSIONS, {
-      textInput: arg.textInput,
+      ...arg.uiState,
       errorMessageBackend: errorMessage,
     });
     return { success: false };
