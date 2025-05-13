@@ -6,30 +6,30 @@ import {
   createNewPage,
   createNewPageFromTemplatePage,
   extractTemplatePageForChartType,
-  fetchChartViewMap,
+  fetchNarrativeChartMap,
   fetchGrapherConfig,
   fetchGrapherSvg,
   findChildNodeByName,
   inferChartType,
   makePageNameForChart,
 } from "../helpers";
-import { ChartViewMap, HandlerArgs, QueryParams } from "../types";
+import { NarrativeChartMap, HandlerArgs, QueryParams } from "../types";
 import { strToQueryParams } from "../helpers";
 
 export async function createNewDataInsightPage(arg: HandlerArgs): Promise<{
   success: boolean;
 }> {
-  let chartViewMap: ChartViewMap | undefined;
-  if (arg.type === "chartViewName") {
-    chartViewMap = await fetchChartViewMap();
+  let narrativeChartMap: NarrativeChartMap | undefined;
+  if (arg.type === "narrativeChartName") {
+    narrativeChartMap = await fetchNarrativeChartMap();
   }
 
-  // Fetch the SVG and chart config by chart view name or url
+  // Fetch the SVG and chart config by narrative chart name or url
   let svg: string, config: Record<string, any> | undefined;
   try {
     [svg, config] = await Promise.all([
-      fetchGrapherSvg(arg, chartViewMap),
-      fetchGrapherConfig(arg, chartViewMap),
+      fetchGrapherSvg(arg, narrativeChartMap),
+      fetchGrapherConfig(arg, narrativeChartMap),
     ]);
   } catch (error) {
     const errorMessage =
