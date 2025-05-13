@@ -38,6 +38,10 @@
       "allowedDomains": [
         "https://ourworldindata.org",
         "https://admin.owid.io"
+      ],
+      "devAllowedDomains": [
+        "http://localhost:3030",
+        "http://localhost:8788"
       ]
     },
     "permissions": [
