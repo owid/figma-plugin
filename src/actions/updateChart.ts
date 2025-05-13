@@ -7,7 +7,7 @@ import {
   PLUGIN_DIMENSIONS,
 } from "../constants";
 import {
-  fetchChartViewMap,
+  fetchNarrativeChartMap,
   fetchGrapherSvg,
   findAndReplaceChildNodes,
   findChildNodeByName,
@@ -15,7 +15,7 @@ import {
   moveTargetNodeBelowClosestAbove,
   replaceChildNodes,
 } from "../helpers";
-import { ChartViewMap, HandlerArgs } from "../types";
+import { NarrativeChartMap, HandlerArgs } from "../types";
 
 export async function updateChart(
   arg: HandlerArgs,
@@ -29,15 +29,15 @@ export async function updateChart(
     return { success: false };
   }
 
-  let chartViewMap: ChartViewMap | undefined;
-  if (arg.type === "chartViewName") {
-    chartViewMap = await fetchChartViewMap();
+  let narrativeChartMap: NarrativeChartMap | undefined;
+  if (arg.type === "narrativeChartName") {
+    narrativeChartMap = await fetchNarrativeChartMap();
   }
 
-  // Fetch the SVG by chart view name or url
+  // Fetch the SVG by narrative chart name or url
   let svg: string;
   try {
-    svg = await fetchGrapherSvg(arg, chartViewMap);
+    svg = await fetchGrapherSvg(arg, narrativeChartMap);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch";

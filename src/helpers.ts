@@ -7,20 +7,20 @@ import {
   OWID_URL,
   TEMPLATE_PAGE_NAME_PREFIX,
 } from "./constants";
-import { ChartType, ChartViewMap, HandlerArgs, QueryParams } from "./types";
+import { ChartType, NarrativeChartMap, HandlerArgs, QueryParams } from "./types";
 
 export async function fetchGrapherSvg(
   input: HandlerArgs,
-  chartViewMap?: ChartViewMap,
+  narrativeChartMap?: NarrativeChartMap,
 ) {
   switch (input.type) {
     case "grapherUrl":
     case "explorerUrl":
       return await fetchGrapherOrExplorerSvgByUrl(input.url, input.options);
-    case "chartViewName":
-      return await fetchGrapherSvgByChartViewName(
-        input.chartViewName,
-        chartViewMap!,
+    case "narrativeChartName":
+      return await fetchGrapherSvgByNarrativeChartName(
+        input.narrativeChartName,
+        narrativeChartMap!,
         input.options,
       );
   }
@@ -28,17 +28,17 @@ export async function fetchGrapherSvg(
 
 export async function fetchGrapherConfig(
   input: HandlerArgs,
-  chartViewMap?: ChartViewMap,
+  narrativeChartMap?: NarrativeChartMap,
 ) {
   switch (input.type) {
     case "grapherUrl":
       return await fetchGrapherConfigByUrl(input.url);
     case "explorerUrl":
       return undefined; // can't fetch configs for explorers
-    case "chartViewName":
-      return await fetchGrapherConfigByChartViewName(
-        input.chartViewName,
-        chartViewMap!,
+    case "narrativeChartName":
+      return await fetchGrapherConfigByNarrativeChartName(
+        input.narrativeChartName,
+        narrativeChartMap!,
       );
   }
 }
@@ -81,21 +81,21 @@ async function fetchGrapherConfigByUrl(urlStr: string) {
   return await response.json();
 }
 
-export async function fetchChartViewMap() {
-  const url = `${ADMIN_URL}/api/chartViewMap`;
+export async function fetchNarrativeChartMap() {
+  const url = `${ADMIN_URL}/api/narrative-chart-map`;
   const response = await fetch(url);
   return await response.json();
 }
 
-async function fetchGrapherSvgByChartViewName(
-  chartViewName: string,
-  chartViewMap: ChartViewMap,
+async function fetchGrapherSvgByNarrativeChartName(
+  narrativeChartName: string,
+  narrativeChartMap: NarrativeChartMap,
   options?: { beigeBackground?: boolean },
 ) {
   // Get the chart config ID
-  const chartConfigId = chartViewMap[chartViewName];
+  const chartConfigId = narrativeChartMap[narrativeChartName];
   if (!chartConfigId)
-    throw new Error(`Narrative chart does not exist: ${chartViewName}`);
+    throw new Error(`Narrative chart does not exist: ${narrativeChartName}`);
 
   // Add query params
   const queryParams = {
@@ -114,14 +114,14 @@ async function fetchGrapherSvgByChartViewName(
   return await response.text();
 }
 
-async function fetchGrapherConfigByChartViewName(
-  chartViewName: string,
-  chartViewMap: ChartViewMap,
+async function fetchGrapherConfigByNarrativeChartName(
+  narrativeChartName: string,
+  narrativeChartMap: NarrativeChartMap,
 ) {
   // Get the chart config ID
-  const chartConfigId = chartViewMap[chartViewName];
+  const chartConfigId = narrativeChartMap[narrativeChartName];
   if (!chartConfigId)
-    throw new Error(`Narrative chart does not exist: ${chartViewName}`);
+    throw new Error(`Narrative chart does not exist: ${narrativeChartName}`);
 
   // Construct the config URL
   const configUrl = `${OWID_URL}/grapher/by-uuid/${chartConfigId}.config.json`;

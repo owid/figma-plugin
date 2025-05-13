@@ -53,10 +53,10 @@ function Plugin(props: {
       textInput: { importChartField: text },
     };
 
-    if (data.type === "chartViewName") {
+    if (data.type === "narrativeChartName") {
       emit<CreateNewDataInsightPageHandler>("CREATE_NEW_DATA_INSIGHT_PAGE", {
-        type: "chartViewName",
-        chartViewName: data.value,
+        type: "narrativeChartName",
+        narrativeChartName: data.value,
         options,
         uiState,
       });
@@ -82,10 +82,10 @@ function Plugin(props: {
       textInput: { updateChartField: text },
     };
 
-    if (data.type === "chartViewName") {
+    if (data.type === "narrativeChartName") {
       emit<UpdateChartHandler>("UPDATE_CHART", {
-        type: "chartViewName",
-        chartViewName: data.value,
+        type: "narrativeChartName",
+        narrativeChartName: data.value,
         options,
         uiState,
       });
@@ -160,7 +160,7 @@ function Plugin(props: {
   );
 }
 
-type TextInputType = "chartViewName" | "grapherUrl" | "explorerUrl";
+type TextInputType = "narrativeChartName" | "grapherUrl" | "explorerUrl";
 const parseTextInput = (
   text: string,
 ): {
@@ -173,7 +173,7 @@ const parseTextInput = (
     return { type: "grapherUrl", value: input };
   if (isUrl && input.startsWith(`${EXPLORER_URL}/`))
     return { type: "explorerUrl", value: input };
-  else if (input.length > 0) return { type: "chartViewName", value: input };
+  else if (input.length > 0) return { type: "narrativeChartName", value: input };
   else return { type: "invalid", value: input };
 };
 

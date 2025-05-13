@@ -27,12 +27,12 @@ interface UrlArgs {
   url: string;
 }
 
-interface ChartViewArgs {
-  type: "chartViewName";
-  chartViewName: string;
+interface NarrativeChartArgs {
+  type: "narrativeChartName";
+  narrativeChartName: string;
 }
 
-export type HandlerArgs = CommonArgs & (UrlArgs | ChartViewArgs);
+export type HandlerArgs = CommonArgs & (UrlArgs | NarrativeChartArgs);
 
 export interface PluginProps {
   errorMessageBackend: string;
@@ -74,4 +74,4 @@ export type TemplatePageName =
   | "Scatter plots"
   | "Maps";
 
-export type ChartViewMap = Record<string, string>;
+export type NarrativeChartMap = Record<string, string>;
